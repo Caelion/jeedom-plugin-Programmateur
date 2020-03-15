@@ -1,0 +1,28 @@
+<span class="cmd cmd-widget cursor" data-type="action" data-subtype="other" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#">
+	<div class="cmdName #hide_name#">#valueName#</div><!-- #valueName# pour le nom de la commande actionnée / #name_display# pour le nom de la commande -->
+	<div id="imgCmd#id#" class="imgCmd" style="display:inline-block;"></div>
+	<script>
+	jeedom.cmd.update['#id#'] = function(_options){
+		var cmd = $('.cmd[data-cmd_id=#id#]');
+		if (_options.display_value == '1' || _options.display_value == 1 || _options.display_value == '99' || _options.display_value == 99 || _options.display_value == 'on') {
+			if (jeedom.cmd.normalizeName('#name#') == 'on') {
+				cmd.hide();
+			} else {
+				cmd.show();
+				cmd.find('.imgCmd').empty().append('<i class="far fa-check-square" style="margin:5px;font-size:20px;"></i><span class="cmd" style="vertical-align:2.5px;">#valueName#</span>');
+			}
+		} else {
+			if (jeedom.cmd.normalizeName('#name#') == 'off') {
+				cmd.hide();
+			}else{
+				cmd.show();
+				cmd.find('.imgCmd').empty().append('<i class="far fa-square" style="margin:5px;font-size:20px;"></i><span class="cmd" style="vertical-align:2.5px;">#valueName#</span>');
+			}
+		}
+	}
+	jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});
+	$('.cmd[data-cmd_uid=#uid#] .imgCmd').off().on('click', function () {
+		jeedom.cmd.execute({id: '#id#'});
+	});
+	</script>
+</span>
