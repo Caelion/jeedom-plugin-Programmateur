@@ -76,8 +76,8 @@ class programmateur extends eqLogic {
 	}
 
 	public function nextprog($equipement) {
-		log::add('programmateur','debug','- Appel de la fonction Nextprog :');
 		$programmateur = eqLogic::byId($equipement);
+		log::add('programmateur','debug','- Appel de la fonction Nextprog par ' . $programmateur->getHumanName() . ' :');
 		if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
 			$cmd = $programmateur->getCmd(null, 'etat');// Retourne la commande "etat" si elle existe
 			if (is_object($cmd)) {//Si la commande existe
@@ -105,7 +105,7 @@ class programmateur extends eqLogic {
 						$Mode=cmd::byId(str_replace('#', '',$programmateur->getConfiguration('CommandeMode')))->execCmd();
 						if ($Mode == $programmateur->getConfiguration('ExclMode')) {
 							$Mode = 1;
-						}
+						} else {$Mode = 0;}
 					}
 					log::add('programmateur','debug','  - Mode : Actif : ' . $Mode_box . ' - Critère respecté : ' . $Mode);
 
