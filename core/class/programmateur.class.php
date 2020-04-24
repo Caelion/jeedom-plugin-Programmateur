@@ -128,7 +128,7 @@ class programmateur extends eqLogic {
 					if ($duree < 0) {
 						$heure_timestamp = $heure_timestamp + $duree * 60;
 						$duree = - $duree;
-                    }
+					}
 
 					$array = array('eq_id' => intval($programmateur->getId()),'delay' => $duree*60,'typeaction1' => $programmateur->getConfiguration('TypeAction1'),'action1' => $programmateur->getConfiguration('Action1'),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'),'timestamp' => $heure_timestamp);
 					// Si on doit programmer un cron
