@@ -87,7 +87,7 @@ function addCmdToTable(_cmd) {
 		tr += '</td>';
 
 		tr += '</tr>';
-    }
+	}
 
 	$('#table_cmd tbody').append(tr);
 	var tr = $('#table_cmd tbody tr:last');
@@ -115,7 +115,7 @@ $("#bt_selectTypeAction1").on('change', function () {
 			<div class="input-group" style="display:none">
 				<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="Action1" value=""/>
 			</div>`;
-    } else if (value == 'Commande') {
+	} else if (value == 'Commande') {
 		var txt = `
 			<div class="input-group">
 				<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="Action1" placeholder="{{Commande à exécuter}}"/>
@@ -125,7 +125,7 @@ $("#bt_selectTypeAction1").on('change', function () {
 					</a>
 				</span>
 			</div>`;
-    } else if (value == 'Scenario') {
+	} else if (value == 'Scenario') {
 		var txt = `
 			<div class="input-group">
 				<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="Action1" placeholder="{{Scénario à exécuter}}"/>
@@ -135,7 +135,7 @@ $("#bt_selectTypeAction1").on('change', function () {
 					</a>
 				</span>
 			</div>`;
-    }
+	}
 	$('#Action1').empty().append(txt);
 	if (value == 'Commande') {
 		$("#bt_selectAction1").on('click', function () {
@@ -143,13 +143,13 @@ $("#bt_selectTypeAction1").on('change', function () {
 				$('.eqLogicAttr[data-l1key=configuration][data-l2key=Action1]').value(result.human);
 			});
 		});
-    } else if (value == 'Scenario') {
+	} else if (value == 'Scenario') {
 		$("#bt_selectAction1").on('click', function () {
 			jeedom.scenario.getSelectModal({},function (result) {
 				$('.eqLogicAttr[data-l1key=configuration][data-l2key=Action1]').value(result.human);
 			});
 		});
-    }
+	}
 });
 $("#bt_selectTypeAction2").on('change', function () {
 	var value = document.getElementById("bt_selectTypeAction2").value;
@@ -158,7 +158,7 @@ $("#bt_selectTypeAction2").on('change', function () {
 			<div class="input-group" style="display:none">
 				<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="Action2" value=""/>
 			</div>`;
-    } else if (value == 'Commande') {
+	} else if (value == 'Commande') {
 		var txt = `
 			<div class="input-group">
 				<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="Action2" placeholder="{{Commande à exécuter}}"/>
@@ -168,7 +168,7 @@ $("#bt_selectTypeAction2").on('change', function () {
 					</a>
 				</span>
 			</div>`;
-    } else if (value == 'Scenario') {
+	} else if (value == 'Scenario') {
 		var txt = `
 			<div class="input-group">
 				<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="Action2" placeholder="{{Scénario à exécuter}}"/>
@@ -178,7 +178,7 @@ $("#bt_selectTypeAction2").on('change', function () {
 					</a>
 				</span>
 			</div>`;
-    }
+	}
 	$('#Action2').empty().append(txt);
 	if (value == 'Commande') {
 		$("#bt_selectAction2").on('click', function () {
@@ -186,13 +186,13 @@ $("#bt_selectTypeAction2").on('change', function () {
 				$('.eqLogicAttr[data-l1key=configuration][data-l2key=Action2]').value(result.human);
 			});
 		});
-    } else if (value == 'Scenario') {
+	} else if (value == 'Scenario') {
 		$("#bt_selectAction2").on('click', function () {
 			jeedom.scenario.getSelectModal({},function (result) {
 				$('.eqLogicAttr[data-l1key=configuration][data-l2key=Action2]').value(result.human);
 			});
 		});
-    }
+	}
 });
 $("#bt_selectCommandeJF").on('click', function () {
 	jeedom.cmd.getSelectModal({cmd: {type: 'info', subType: 'binary'}}, function (result) {
