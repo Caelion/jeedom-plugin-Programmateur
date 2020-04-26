@@ -28,7 +28,7 @@ class programmateur extends eqLogic {
 	public static function nextprog_on($_params) {
 		log::add('programmateur','debug','Exécution de la fonction Nextprog_on');
 		$eqLogic = eqLogic::byId($_params['eq_id']);
-		$eqLogic->setConfiguration('RepeatCount',$eqLogic->getConfiguration('RepeatCount')+1)->save();// Mise du compteur à 1
+		// Suppression des crons Off associés
 		$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $eqlogic);
 		if (is_array($crons) && count($crons) > 0) {
 			foreach ($crons as $cron) {
@@ -61,6 +61,11 @@ class programmateur extends eqLogic {
 				$cron->setOnce(1);
 				$cron->setSchedule(cron::convertDateToCron($heure_timestamp));
 				$cron->save();
+			} else {
+				$eqLogic->setConfiguration('RepeatCount',$eqLogic->getConfiguration('RepeatCount')+1)->save();// Mise du compteur à +1
+				if ($eqLogic->getConfiguration('NoRepeat') == 1 && $eqLogic->getConfiguration('RepeatCount') > 0) {
+					$cmd_state->event(0);
+				}
 			}
 		}
 	}
@@ -81,6 +86,10 @@ class programmateur extends eqLogic {
 				else if ($_params['typeaction2'] == 'Scenario') {$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])))->getHumanName();}
 				log::add('programmateur','info','Nextprog - ' . $_params['eq_id'] . ' - Action 2 - '. $name);
 			}
+			$eqLogic->setConfiguration('RepeatCount',$eqLogic->getConfiguration('RepeatCount')+1)->save();// Mise du compteur à +1
+			if ($eqLogic->getConfiguration('NoRepeat') == 1 && $eqLogic->getConfiguration('RepeatCount') > 0) {
+				$cmd_state->event(0);
+			}
 		}
 	}
 
@@ -91,7 +100,7 @@ class programmateur extends eqLogic {
 			$cmd = $programmateur->getCmd(null,'etat');// Retourne la commande "etat" si elle existe
 			if (is_object($cmd)) {//Si la commande existe
 				$cmdValue = $cmd->execCmd();
-				if ($cmdValue == 1 && ($programmateur->getConfiguration('NoRepeat') == 0 || ($programmateur->getConfiguration('NoRepeat') == 1 && $programmateur->getConfiguration('RepeatCount') == 0))) {// Programmateur sur On
+				if ($cmdValue == 1) {// Programmateur sur On
 					$today = date('N');
 					$lundi = $programmateur->getCmd(null,'lundi')->execCmd();
 					$mardi = $programmateur->getCmd(null,'mardi')->execCmd();
