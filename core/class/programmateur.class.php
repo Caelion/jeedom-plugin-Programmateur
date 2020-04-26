@@ -26,10 +26,10 @@ class programmateur extends eqLogic {
 	/* ***********************Methode static*************************** */
 
 	public static function nextprog_on($_params) {
-		log::add('programmateur','debug','Exécution de la fonction Nextprog_on');
 		$eqLogic = eqLogic::byId($_params['eq_id']);
+		log::add('programmateur','debug','Exécution de la fonction Nextprog_on pour l\'équipement ' . $eqLogic->getHumanName());
 		// Suppression des crons Off associés
-		$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $eqlogic);
+		$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $_params['eq_id']);
 		if (is_array($crons) && count($crons) > 0) {
 			foreach ($crons as $cron) {
 				if ($cron->getState() != 'run') {
@@ -71,8 +71,8 @@ class programmateur extends eqLogic {
 	}
 
 	public static function nextprog_off($_params) {
-		log::add('programmateur','debug','Exécution de la fonction Nextprog_off');
 		$eqLogic = eqLogic::byId($_params['eq_id']);
+		log::add('programmateur','debug','Exécution de la fonction Nextprog_off pour l\'équipement ' . $eqLogic->getHumanName());
 		if (is_object($eqLogic)) {
 			$cmd_state = $eqLogic->getCmd(null,'etat');
 			if (!is_object($cmd_state)) {// On s'assure que la commande etat existe sinon on quitte
