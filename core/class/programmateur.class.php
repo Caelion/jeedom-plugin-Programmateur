@@ -166,7 +166,7 @@ class programmateur extends eqLogic {
 
 	/* Fonction exécutée automatiquement toutes les heures par Jeedom
 	public static function cronHourly() {
-		
+
 	}
 	*/
 
@@ -181,15 +181,15 @@ class programmateur extends eqLogic {
 	/* *********************Méthodes d'instance************************* */
 
 	public function preInsert() {
-		
+
 	}
 
 	public function postInsert() {
-		
+
 	}
 
 	public function preSave() {
-		
+
 	}
 
 	public function postSave() {
@@ -266,7 +266,6 @@ class programmateur extends eqLogic {
 			$info->setName(__('Lundi', __FILE__));
 			$info->setOrder($order++);
 			$info->setIsVisible(0);
-			$info->setValue(1);
 		}
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
@@ -695,36 +694,36 @@ class programmateur extends eqLogic {
 	}
 
 	public function preUpdate() {
-		
+
 	}
 
 	public function postUpdate() {
-		
+
 	}
 
 	public function preRemove() {
-		
+
 	}
 
 	public function postRemove() {
-		
+
 	}
 
 	/* Non obligatoire mais permet de modifier l'affichage du widget si vous en avez besoin
 	public function toHtml($_version = 'dashboard') {
-		
+
 	}
 	*/
 
 	/* Non obligatoire mais ca permet de déclencher une action après modification de variable de configuration
 	public static function postConfig_<Variable>() {
-		
+
 	}
 	*/
 
 	/* Non obligatoire mais ca permet de déclencher une action avant modification de variable de configuration
 	public static function preConfig_<Variable>() {
-		
+
 	}
 	*/
 
