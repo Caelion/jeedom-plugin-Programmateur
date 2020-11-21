@@ -162,13 +162,12 @@ class programmateur extends eqLogic {
 		$programmateur = eqLogic::byId($equipement);
 		if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
 			$duree = $programmateur->getCmd(null,'duree')->execCmd();
-$duree = 10/60;
 			$fin = strtotime('now') + abs($duree) * 60;
-log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . date('d/m/Y à H:i', $fin + 60));
+			log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . date('d/m/Y à H:i', $fin + 60));
 			if ($duree > 0) {
 				$on = 1;
 				$off = 2;
-            } else {
+			} else {
 				$on = 2;
 				$off = 1;
 			}
@@ -194,8 +193,8 @@ log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . dat
 				$cron->setSchedule(cron::convertDateToCron($fin));
 				$cron->save();
 			}
-        }
-    }
+		}
+	}
 
 	public static function forced_off($_params) {
 		$eqLogic = eqLogic::byId($_params['eq_id']);
@@ -212,7 +211,7 @@ log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . dat
 				log::add('programmateur','info','  - Action 2 - '. $name);
 			}
 		}
-    }
+	}
 
 	/* Fonction exécutée automatiquement toutes les minutes par Jeedom
 	public static function cron() {
