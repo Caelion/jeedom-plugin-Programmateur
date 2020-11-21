@@ -158,6 +158,62 @@ class programmateur extends eqLogic {
 		}
 	}
 
+	public static function forced($equipement) {
+		$programmateur = eqLogic::byId($equipement);
+		if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
+			$duree = $programmateur->getCmd(null,'duree')->execCmd();
+$duree = 10/60;
+			$fin = strtotime('now') + abs($duree) * 60;
+log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . date('d/m/Y à H:i', $fin + 60));
+			if ($duree > 0) {
+				$on = 1;
+				$off = 2;
+            } else {
+				$on = 2;
+				$off = 1;
+			}
+			$_params = array('eq_id' => intval($programmateur->getId()),'typeaction1' => $programmateur->getConfiguration('TypeAction'.$on),'action1' => $programmateur->getConfiguration('Action'.$on),'typeaction2' => $programmateur->getConfiguration('TypeAction'.$off),'action2' => $programmateur->getConfiguration('Action'.$off));
+
+			if (isset($_params['action1']) && $_params['action1'] != '') {
+				if ($_params['typeaction1'] == 'Commande') {
+					cmd::byId(str_replace('#','',$_params['action1']))->execCmd();
+					$name = cmd::byId(str_replace('#','',$_params['action1']))->getHumanName();
+				} else if ($_params['typeaction1'] == 'Scenario') {
+					scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])))->launch();
+					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])))->getHumanName();
+				}
+				log::add('programmateur','info','  - Action 1 - '. $name);
+			}
+			if (isset($_params['action2']) && $_params['action2'] != '') { // Si on doit programmer un cron
+				log::add('programmateur','debug','  - Nouveau cron mis en place : ' . date('d/m/Y à H:i',$fin + 60));
+				$cron = new cron();
+				$cron->setClass('programmateur');
+				$cron->setFunction('forced_off');
+				$cron->setOption($_params);
+				$cron->setOnce(1);
+				$cron->setSchedule(cron::convertDateToCron($fin));
+				$cron->save();
+			}
+        }
+    }
+
+	public static function forced_off($_params) {
+		$eqLogic = eqLogic::byId($_params['eq_id']);
+		log::add('programmateur','debug','Exécution de la fonction Forced_off pour l\'équipement ' . $eqLogic->getHumanName());
+		if (is_object($eqLogic)) {
+			if (isset($_params['action2']) && $_params['action2'] != '') {
+				if ($_params['typeaction2'] == 'Commande') {
+					cmd::byId(str_replace('#','',$_params['action2']))->execCmd();
+					$name = cmd::byId(str_replace('#','',$_params['action2']))->getHumanName();
+				} else if ($_params['typeaction2'] == 'Scenario') {
+					scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])))->launch();
+					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])))->getHumanName();
+				}
+				log::add('programmateur','info','  - Action 2 - '. $name);
+			}
+		}
+    }
+
 	/* Fonction exécutée automatiquement toutes les minutes par Jeedom
 	public static function cron() {
 
@@ -200,8 +256,8 @@ class programmateur extends eqLogic {
 			$refresh = new programmateurCmd();
 			$refresh->setLogicalId('refresh');
 			$refresh->setName(__('Rafraichir', __FILE__));
-			$refresh->setOrder($order++);
 		}
+		$refresh->setOrder($order++);
 		$refresh->setEqLogic_id($this->getId());
 		$refresh->setType('action');
 		$refresh->setSubType('other');
@@ -212,10 +268,10 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('etat');
 			$info->setName(__('Etat', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 			$info->setisHistorized(1);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('binary');
@@ -226,12 +282,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('on');
 			$action->setName(__('On', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::toggle');
 			$action->setTemplate('mobile','programmateur::toggle');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -245,12 +301,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('off');
 			$action->setName(__('Off', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::toggle');
 			$action->setTemplate('mobile','programmateur::toggle');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -264,9 +320,9 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('lundi');
 			$info->setName(__('Lundi', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('binary');
@@ -277,12 +333,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('lun_on');
 			$action->setName(__('Lun_On', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -296,12 +352,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('lun_off');
 			$action->setName(__('Lun_Off', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -315,9 +371,9 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('mardi');
 			$info->setName(__('Mardi', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('binary');
@@ -328,12 +384,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('mar_on');
 			$action->setName(__('Mar_On', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -347,12 +403,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('mar_off');
 			$action->setName(__('Mar_Off', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -366,9 +422,9 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('mercredi');
 			$info->setName(__('Mercredi', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('binary');
@@ -379,12 +435,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('mer_on');
 			$action->setName(__('Mer_On', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -398,12 +454,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('mer_off');
 			$action->setName(__('Mer_Off', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -417,9 +473,9 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('jeudi');
 			$info->setName(__('Jeudi', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('binary');
@@ -430,12 +486,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('jeu_on');
 			$action->setName(__('Jeu_On', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -449,12 +505,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('jeu_off');
 			$action->setName(__('Jeu_Off', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -468,9 +524,9 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('vendredi');
 			$info->setName(__('Vendredi', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('binary');
@@ -481,12 +537,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('ven_on');
 			$action->setName(__('Ven_On', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -500,12 +556,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('ven_off');
 			$action->setName(__('Ven_Off', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -519,9 +575,9 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('samedi');
 			$info->setName(__('Samedi', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('binary');
@@ -532,12 +588,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('sam_on');
 			$action->setName(__('Sam_On', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -551,12 +607,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('sam_off');
 			$action->setName(__('Sam_Off', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -570,9 +626,9 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('dimanche');
 			$info->setName(__('Dimanche', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('binary');
@@ -583,12 +639,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('dim_on');
 			$action->setName(__('Dim_On', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -602,12 +658,12 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('dim_off');
 			$action->setName(__('Dim_Off', __FILE__));
-			$action->setOrder($order++);
 			$action->setTemplate('dashboard','programmateur::day');
 			$action->setTemplate('mobile','programmateur::day');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setValue($info->getId());
 		$action->setConfiguration('updateCmdId', $info->getId());
@@ -621,12 +677,12 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('horaire');
 			$info->setName(__('Horaire', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 			$info->setisHistorized(1);
 			$info->setConfiguration('minValue', 0);
 			$info->setConfiguration('maxValue', 2359);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('numeric');
@@ -637,7 +693,6 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('var_horaire');
 			$action->setName(__('Var_Horaire', __FILE__));
-			$action->setOrder($order++);
 			$action->setConfiguration('minValue', 0);
 			$action->setConfiguration('maxValue', 2359);
 			$action->setTemplate('dashboard','programmateur::time');
@@ -645,6 +700,7 @@ class programmateur extends eqLogic {
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setConfiguration('infoName', $info->getId());
 		$action->setValue($info->getId());
@@ -657,12 +713,12 @@ class programmateur extends eqLogic {
 			$info = new programmateurCmd();
 			$info->setLogicalId('duree');
 			$info->setName(__('Durée', __FILE__));
-			$info->setOrder($order++);
 			$info->setIsVisible(0);
 			$info->setisHistorized(1);
 			$info->setConfiguration('minValue', -1440);
 			$info->setConfiguration('maxValue', 1440);
 		}
+		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
 		$info->setType('info');
 		$info->setSubType('numeric');
@@ -674,7 +730,6 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('var_duree');
 			$action->setName(__('Var_Durée', __FILE__));
-			$action->setOrder($order++);
 			$action->setConfiguration('minValue', -1440);
 			$action->setConfiguration('maxValue', 1440);
 			$action->setTemplate('dashboard','programmateur::delay');
@@ -685,11 +740,26 @@ class programmateur extends eqLogic {
 				$arr['big_change'] = 'Oui';
 			$action->setDisplay('parameters', $arr);
 		}
+		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
 		$action->setConfiguration('infoName', $info->getId());
 		$action->setValue($info->getId());
 		$action->setType('action');
 		$action->setSubType('slider');
+		$action->save();
+
+		$action = $this->getCmd(null, 'forced');
+		if (!is_object($action)) {
+			$action = new programmateurCmd();
+			$action->setLogicalId('forced');
+			$action->setName(__('Marche forcée', __FILE__));
+			$action->setDisplay('showNameOndashboard','0');
+			$action->setDisplay('showNameOnmobile','0');
+		}
+		$action->setOrder($order++);
+		$action->setEqLogic_id($this->getId());
+		$action->setType('action');
+		$action->setSubType('other');
 		$action->save();
 	}
 
@@ -747,42 +817,57 @@ class programmateurCmd extends cmd {
 
 	public function execute($_options = array()) {
 		log::add('programmateur','debug','Exécution de la fonction Execute');
-		// Modification donc on supprime tous les précédents crons de l'équipement
 		$eqlogic = $this->getEqLogic()->getId();
-		$crons = cron::searchClassAndFunction('programmateur','nextprog_on','"eq_id":' . $eqlogic);
-		if (is_array($crons) && count($crons) > 0) {
-			foreach ($crons as $cron) {
-				if ($cron->getState() != 'run') {
-					log::add('programmateur','debug','- Suppression du cron Nextprog_on : '.$cron->getSchedule());
-					$cron->remove();
+		if ($this->getLogicalId() == 'forced') {// Si marche forcée :
+			log::add('programmateur','debug','- Action sur Marche forcée par ' . eqLogic::byId($eqlogic)->getHumanName());
+			// Modification donc on supprime tous les précédents crons de l'équipement
+			$crons = cron::searchClassAndFunction('programmateur','forced_off','"eq_id":' . $eqlogic);
+			if (is_array($crons) && count($crons) > 0) {
+				foreach ($crons as $cron) {
+					if ($cron->getState() != 'run') {
+						log::add('programmateur','debug','- Suppression du cron Forced_off : '.$cron->getSchedule());
+						$cron->remove();
+					}
 				}
 			}
-		}
-		// Réinitialisation du compteur de répétition
-		eqLogic::byId($eqlogic)->setConfiguration('RepeatCount',0)->save();
-		// Action sur refresh
-		if ($this->getLogicalId() == 'refresh') {
-			$this->getEqLogic()->refresh();
-			//return;
-		}
-		// Action sur modification du slider
-		switch ($this->getSubType()) {
-			case 'other':
-				log::add('programmateur','debug','- Action sur Other');
-				$virtualCmd = virtualCmd::byId($this->getConfiguration('updateCmdId'));
-				$value = $this->getConfiguration('updateCmdToValue');
-				$result = jeedom::evaluateExpression($value);
-				$virtualCmd->event($result);
-			break;
-			case 'slider':
-				log::add('programmateur','debug','- Action sur Slider');
-				$virtualCmd = virtualCmd::byId($this->getConfiguration('infoName'));
-				$value = $_options['slider'];
-				$result = jeedom::evaluateExpression($value);
-				$virtualCmd->event($result);
-			break;
-		}
-		programmateur::nextprog($eqlogic);
+			programmateur::forced($eqlogic);
+		} else {// Si la modification ne concerne pas la marche forcée
+			// Modification donc on supprime tous les précédents crons de l'équipement
+			$crons = cron::searchClassAndFunction('programmateur','nextprog_on','"eq_id":' . $eqlogic);
+			if (is_array($crons) && count($crons) > 0) {
+				foreach ($crons as $cron) {
+					if ($cron->getState() != 'run') {
+						log::add('programmateur','debug','- Suppression du cron Nextprog_on : '.$cron->getSchedule());
+						$cron->remove();
+					}
+				}
+			}
+			// Réinitialisation du compteur de répétition
+			eqLogic::byId($eqlogic)->setConfiguration('RepeatCount',0)->save();
+			// Action sur refresh
+			if ($this->getLogicalId() == 'refresh') {
+				$this->getEqLogic()->refresh();
+				//return;
+			}
+			// Action sur modification du slider
+			switch ($this->getSubType()) {
+				case 'other':
+					log::add('programmateur','debug','- Action sur Other');
+					$virtualCmd = virtualCmd::byId($this->getConfiguration('updateCmdId'));
+					$value = $this->getConfiguration('updateCmdToValue');
+					$result = jeedom::evaluateExpression($value);
+					$virtualCmd->event($result);
+				break;
+				case 'slider':
+					log::add('programmateur','debug','- Action sur Slider');
+					$virtualCmd = virtualCmd::byId($this->getConfiguration('infoName'));
+					$value = $_options['slider'];
+					$result = jeedom::evaluateExpression($value);
+					$virtualCmd->event($result);
+				break;
+			}
+			programmateur::nextprog($eqlogic);
+        }
 	}
 
 	/* **********************Getteur Setteur*************************** */
