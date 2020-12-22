@@ -153,6 +153,26 @@ class programmateur extends eqLogic {
 					} else {
 						log::add('programmateur','debug','  - Pas de programmation à mettre en place');
 					}
+				} else {
+					log::add('programmateur','debug','  Action de fin sur mise sur off de l\'équipement');
+					$EndOnOff = $programmateur->getConfiguration('EndOnOff');
+					log::add('programmateur','debug','  - EndOnOff : ' . $EndOnOff);
+					if ($EndOnOff == 1){
+						// Suppression des crons Off éventuels
+						$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $equipement);
+						if (is_array($crons) && count($crons) > 0) {
+							foreach ($crons as $cron) {
+								if ($cron->getState() != 'run') {
+									log::add('programmateur','debug','  - Suppression du cron Nextprog_off : '.$cron->getSchedule());
+									$cron->remove();
+								}
+							}
+							// Exécution immédiate de Nextprog_off
+							log::add('programmateur','debug','  - Exécution immédiate de Nextprog_off');
+							$array = array('eq_id' => intval($programmateur->getId()),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'));
+							programmateur::nextprog_off($array);
+						}
+					}
 				}
 			}
 		}
