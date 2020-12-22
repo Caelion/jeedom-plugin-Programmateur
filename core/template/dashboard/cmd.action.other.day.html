@@ -1,6 +1,6 @@
 <span class="cmd cmd-widget cursor" data-type="action" data-subtype="other" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#">
 	<div class="cmdName #hide_name#">#valueName#</div><!-- #valueName# pour le nom de la commande actionnée / #name_display# pour le nom de la commande -->
-	<div id="imgCmd#id#" class="imgCmd" style="display:inline-block;"></div>
+	<div id="imgCmd#id#" class="imgCmd" style="display:inline-block;margin:2px;"></div>
 	<script>
 	jeedom.cmd.update['#id#'] = function(_options){
 		var cmd = $('.cmd[data-cmd_id=#id#]');
@@ -9,14 +9,14 @@
 				cmd.hide();
 			} else {
 				cmd.show();
-				cmd.find('.imgCmd').empty().append('<i class="far fa-check-square" style="margin:5px;font-size:20px;"></i><span class="cmd" style="vertical-align:2.5px;">#valueName#</span>');
+				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background:darkolivegreen;padding:4px;line-height:30px;border-radius:3px;border-style:outset;border-color:darkolivegreen;">#valueName#</span>');
 			}
 		} else {
 			if (jeedom.cmd.normalizeName('#name#') == 'off') {
 				cmd.hide();
 			}else{
 				cmd.show();
-				cmd.find('.imgCmd').empty().append('<i class="far fa-square" style="margin:5px;font-size:20px;"></i><span class="cmd" style="vertical-align:2.5px;">#valueName#</span>');
+				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background:brown;padding:4px;line-height:30px;border-radius:3px;border-style:inset;border-color:brown;">#valueName#</span>');
 			}
 		}
 	}
