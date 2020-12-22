@@ -250,6 +250,7 @@ class programmateur extends eqLogic {
 	public function postSave() {
 		log::add('programmateur','debug','Exécution de la fonction postSave');
 		//Création des commandes
+		$order = 0;
 		$refresh = $this->getCmd(null, 'refresh');
 		if (!is_object($refresh)) {
 			$refresh = new programmateurCmd();
