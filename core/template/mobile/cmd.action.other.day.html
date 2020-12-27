@@ -9,14 +9,14 @@
 				cmd.hide();
 			} else {
 				cmd.show();
-				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background:darkolivegreen;padding:4px;line-height:30px;border-radius:3px;border-style:outset;border-color:darkolivegreen;">#valueName#</span>');
+				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background-color:rgba(var(--cat-energy-color), var(--opacity));color: var(--eqTitle-color) !important;padding:4px;line-height:30px;border-radius:3px;border-style:outset;border-color:rgba(var(--cat-energy-color), var(--opacity));">#valueName#</span>');
 			}
 		} else {
 			if (jeedom.cmd.normalizeName('#name#') == 'off') {
 				cmd.hide();
 			}else{
 				cmd.show();
-				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background:brown;padding:4px;line-height:30px;border-radius:3px;border-style:inset;border-color:brown;">#valueName#</span>');
+				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background-color:rgba(var(--cat-security-color), var(--opacity));color: var(--eqTitle-color) !important;padding:4px;line-height:30px;border-radius:3px;border-style:inset;border-color:rgba(var(--cat-security-color), var(--opacity));">#valueName#</span>');
 			}
 		}
 	}
