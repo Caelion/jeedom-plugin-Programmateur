@@ -9,14 +9,14 @@
 				cmd.hide();
 			} else {
 				cmd.show();
-				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background:darkolivegreen;padding:4px;line-height:30px;border-radius:3px;border-style:outset;border-color:darkolivegreen;">#valueName#</span>');
+				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background:var(--al-success-color) !important;padding:4px;line-height:30px;border-radius:3px;border-style:outset;border-color:var(--al-success-color) !important;color:var(--sc-lightTxt-color) !important;">#valueName#</span>');
 			}
 		} else {
 			if (jeedom.cmd.normalizeName('#name#') == 'off') {
 				cmd.hide();
 			}else{
 				cmd.show();
-				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background:brown;padding:4px;line-height:30px;border-radius:3px;border-style:inset;border-color:brown;">#valueName#</span>');
+				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background:var(--al-danger-color) !important;padding:4px;line-height:30px;border-radius:3px;border-style:inset;border-color:var(--al-danger-color) !important;color:var(--sc-lightTxt-color) !important;">#valueName#</span>');
 			}
 		}
 	}
