@@ -47,9 +47,9 @@ class programmateur extends eqLogic {
 				if ($_params['typeaction1'] == 'Commande') {cmd::byId(str_replace('#','',$_params['action1']))->execCmd();}
 				else if ($_params['typeaction1'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
-					if (isset($_params['TagAction1']) && $_params['TagAction1'] != '') {
+					if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
 						$tags = array();
-						$args = arg2array($_params['TagAction1']);
+						$args = arg2array($_params['tagaction1']);
 						foreach ($args as $key => $value) {
 							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
 						}
@@ -68,7 +68,7 @@ class programmateur extends eqLogic {
 				$cron = new cron();
 				$cron->setClass('programmateur');
 				$cron->setFunction('nextprog_off');
-				$cron->setOption(array('eq_id' => $_params['eq_id'],'typeaction2' => $_params['typeaction2'],'action2' => $_params['action2'], 'TagAction2' => $_params['TagAction2']));
+				$cron->setOption(array('eq_id' => $_params['eq_id'],'typeaction2' => $_params['typeaction2'],'action2' => $_params['action2'], 'tagaction2' => $_params['tagaction2']));
 				$cron->setOnce(1);
 				$cron->setSchedule(cron::convertDateToCron($heure_timestamp));
 				$cron->save();
@@ -93,9 +93,9 @@ class programmateur extends eqLogic {
 				if ($_params['typeaction2'] == 'Commande') {cmd::byId(str_replace('#','',$_params['action2']))->execCmd();}
 				else if ($_params['typeaction2'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])));
-					if (isset($_params['TagAction2']) && $_params['TagAction2'] != '') {
+					if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
 						$tags = array();
-						$args = arg2array($_params['TagAction2']);
+						$args = arg2array($_params['tagaction2']);
 						foreach ($args as $key => $value) {
 							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
 						}
@@ -161,7 +161,7 @@ class programmateur extends eqLogic {
 						$duree = - $duree;
 					}
 
-					$array = array('eq_id' => intval($programmateur->getId()),'delay' => $duree*60,'typeaction1' => $programmateur->getConfiguration('TypeAction1'),'action1' => $programmateur->getConfiguration('Action1'),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'),'timestamp' => $heure_timestamp, 'TagAction1' => $programmateur->getConfiguration('TagAction1'), 'TagAction2' => $programmateur->getConfiguration('TagAction2'));
+					$array = array('eq_id' => intval($programmateur->getId()),'delay' => $duree*60,'typeaction1' => $programmateur->getConfiguration('TypeAction1'),'action1' => $programmateur->getConfiguration('Action1'),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'),'timestamp' => $heure_timestamp, 'tagaction1' => $programmateur->getConfiguration('TagAction1'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
 					// Si on doit programmer un cron
 					if (($heure_timestamp > strtotime(date('H:i'))) && (($JF_box == 1 && $JF == 0) || $JF_box == 0) && (($Mode_box == 1 && $Mode == 0) || $Mode_box == 0) && (($today == 1 && $lundi == 1)||($today == 2 && $mardi == 1)||($today == 3 && $mercredi == 1)||($today == 4 && $jeudi == 1)||($today == 5 && $vendredi == 1)||($today == 6 && $samedi == 1)||($today == 7 && $dimanche == 1))) {
 						log::add('programmateur','debug','  - Nouveau cron à '.date('H:i',$array['timestamp']));
@@ -191,7 +191,7 @@ class programmateur extends eqLogic {
 							}
 							// Exécution immédiate de Nextprog_off
 							log::add('programmateur','debug','  - Exécution immédiate de Nextprog_off');
-							$array = array('eq_id' => intval($programmateur->getId()),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'), 'TagAction2' => $programmateur->getConfiguration('TagAction2'));
+							$array = array('eq_id' => intval($programmateur->getId()),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
 							programmateur::nextprog_off($array);
 						}
 					}
@@ -213,7 +213,7 @@ class programmateur extends eqLogic {
 				$on = 2;
 				$off = 1;
 			}
-			$_params = array('eq_id' => intval($programmateur->getId()),'typeaction1' => $programmateur->getConfiguration('TypeAction'.$on),'action1' => $programmateur->getConfiguration('Action'.$on),'typeaction2' => $programmateur->getConfiguration('TypeAction'.$off),'action2' => $programmateur->getConfiguration('Action'.$off),'TagAction1' => $programmateur->getConfiguration('TagAction'.$on),'TagAction2' => $programmateur->getConfiguration('TagAction'.$off));
+			$_params = array('eq_id' => intval($programmateur->getId()),'typeaction1' => $programmateur->getConfiguration('TypeAction'.$on),'action1' => $programmateur->getConfiguration('Action'.$on),'typeaction2' => $programmateur->getConfiguration('TypeAction'.$off),'action2' => $programmateur->getConfiguration('Action'.$off),'tagaction1' => $programmateur->getConfiguration('TagAction'.$on),'tagaction2' => $programmateur->getConfiguration('TagAction'.$off));
 
 			if (isset($_params['action1']) && $_params['action1'] != '') {
 				if ($_params['typeaction1'] == 'Commande') {
@@ -221,9 +221,9 @@ class programmateur extends eqLogic {
 					$name = cmd::byId(str_replace('#','',$_params['action1']))->getHumanName();
 				} else if ($_params['typeaction1'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
-					if (isset($_params['TagAction1']) && $_params['TagAction1'] != '') {
+					if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
 						$tags = array();
-						$args = arg2array($_params['TagAction1']);
+						$args = arg2array($_params['tagaction1']);
 						foreach ($args as $key => $value) {
 							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
 						}
@@ -257,9 +257,9 @@ class programmateur extends eqLogic {
 					$name = cmd::byId(str_replace('#','',$_params['action2']))->getHumanName();
 				} else if ($_params['typeaction2'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])));
-					if (isset($_params['TagAction2']) && $_params['TagAction2'] != '') {
+					if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
 						$tags = array();
-						$args = arg2array($_params['TagAction2']);
+						$args = arg2array($_params['tagaction2']);
 						foreach ($args as $key => $value) {
 							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
 						}
