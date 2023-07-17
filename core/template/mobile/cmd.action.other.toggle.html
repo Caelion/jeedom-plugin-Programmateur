@@ -11,14 +11,14 @@
 				cmd.hide();
 			} else {
 				cmd.show();
-				cmd.find('.imgCmd').empty().append('<i class="fas fa-toggle-on" style="margin:5px;font-size:20px;"></i>');
+				cmd.find('.imgCmd').empty().append('<i class="fas fa-toggle-on icon-green" style="margin:5px;font-size:20px;"></i>');
 			}
 		} else {
 			if (jeedom.cmd.normalizeName('#name#') == 'off') {
 				cmd.hide();
 			}else{
 				cmd.show();
-				cmd.find('.imgCmd').empty().append('<i class="fas fa-toggle-off" style="margin:5px;font-size:20px;"></i>');
+				cmd.find('.imgCmd').empty().append('<i class="fas fa-toggle-off icon-red" style="margin:5px;font-size:20px;"></i>');
 			}
 		}
 	}
