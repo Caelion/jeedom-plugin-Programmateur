@@ -177,7 +177,13 @@ class programmateur extends eqLogic {
 					}
 				} else {
 					log::add('programmateur','debug','  Action de fin sur mise sur off de l\'équipement');
-					$EndOnOff = $programmateur->getConfiguration('EndOnOff');
+					$programmateur->checkAndUpdateCmd('lundi','0');
+					$programmateur->checkAndUpdateCmd('mardi','0');
+					$programmateur->checkAndUpdateCmd('mercredi','0');
+					$programmateur->checkAndUpdateCmd('jeudi','0');
+					$programmateur->checkAndUpdateCmd('vendredi','0');
+					$programmateur->checkAndUpdateCmd('samedi','0');
+					$programmateur->checkAndUpdateCmd('dimanche','0');
 					log::add('programmateur','debug','  - EndOnOff : ' . $EndOnOff);
 					if ($EndOnOff == 1){
 						// Suppression des crons Off éventuels
