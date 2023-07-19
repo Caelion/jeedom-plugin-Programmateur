@@ -76,6 +76,13 @@ class programmateur extends eqLogic {
 				$eqLogic->setConfiguration('RepeatCount',$eqLogic->getConfiguration('RepeatCount')+1)->save();// Mise du compteur à +1
 				if ($eqLogic->getConfiguration('NoRepeat') == 1 && $eqLogic->getConfiguration('RepeatCount') > 0) {
 					$cmd_state->event(0);
+					$eqLogic->checkAndUpdateCmd('lundi','0');
+					$eqLogic->checkAndUpdateCmd('mardi','0');
+					$eqLogic->checkAndUpdateCmd('mercredi','0');
+					$eqLogic->checkAndUpdateCmd('jeudi','0');
+					$eqLogic->checkAndUpdateCmd('vendredi','0');
+					$eqLogic->checkAndUpdateCmd('samedi','0');
+					$eqLogic->checkAndUpdateCmd('dimanche','0');
 				}
 			}
 		}
@@ -184,6 +191,8 @@ class programmateur extends eqLogic {
 					$programmateur->checkAndUpdateCmd('vendredi','0');
 					$programmateur->checkAndUpdateCmd('samedi','0');
 					$programmateur->checkAndUpdateCmd('dimanche','0');
+
+					$EndOnOff = $programmateur->getConfiguration('EndOnOff');
 					log::add('programmateur','debug','  - EndOnOff : ' . $EndOnOff);
 					if ($EndOnOff == 1){
 						// Suppression des crons Off éventuels
