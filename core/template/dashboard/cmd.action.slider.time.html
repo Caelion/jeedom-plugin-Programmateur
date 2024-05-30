@@ -119,7 +119,7 @@
 				// Sauvegarde des valeures heure et minutes
 				$('head').prepend('<meta name="heure_#id#" content=' +heure+ '>');
 				$('head').prepend('<meta name="minute_#id#" content=' +minute+ '>');
-			}
+			});
 			jeedom.cmd.refreshValue([{cmd_id :'#id#', display_value:'#state#', valueDate:'#valueDate#', collectDate:'#collectDate#', alertLevel:'#alertLevel#', unit:'#unite#'}]);
 	</script>
 </div>

@@ -19,7 +19,7 @@
 				cmd.find('.imgCmd').empty().append('<span class="cmd" style="background:var(--al-danger-color) !important;padding:4px;line-height:30px;border-radius:3px;border-style:inset;border-color:var(--al-danger-color) !important;color:var(--sc-lightTxt-color) !important;">#valueName#</span>');
 			}
 		}
-	}
+	});
 	jeedom.cmd.refreshValue([{cmd_id :'#id#', display_value:'#state#', valueDate:'#valueDate#', collectDate:'#collectDate#', alertLevel:'#alertLevel#', unit:'#unite#'}]);
 	$('.cmd[data-cmd_uid=#uid#] .imgCmd').off().on('click', function () {
 		jeedom.cmd.execute({id: '#id#'});
