@@ -56,9 +56,9 @@
 			jeedom.cmd.execute({id:'#id#', value: {slider: $('.cmd[data-cmd_uid=#uid#] .in_value').val().replace("#unite#", "").replace(" ", "")}});
 		}, 1000)
 	});
-	jeedom.cmd.update['#id#'] = function(_options){
+	jeedom.cmd.addUpdateFunction('#id#',function(_options) {
 		$('.cmd[data-cmd_uid=#uid#] .in_value').val(_options.display_value+' #unite#');
 	}
-	jeedom.cmd.update['#id#']({display_value:'#state#'});
+	jeedom.cmd.refreshValue([{cmd_id :'#id#', display_value:'#state#', valueDate:'#valueDate#', collectDate:'#collectDate#', alertLevel:'#alertLevel#', unit:'#unite#'}]);
 	</script>
 </div>

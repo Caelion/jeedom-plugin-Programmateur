@@ -94,7 +94,7 @@
 				}
 			});
 		// Fonction update
-			jeedom.cmd.update['#id#'] = function(_options){
+			jeedom.cmd.addUpdateFunction('#id#',function(_options) {
 				// Affichage des heures et des minutes sous forme de chaine de caractères
 				if (_options.display_value >= 0) {
 					$('.cmd[data-cmd_uid=#uid#] .in_value').val(_options.display_value); // Mise à jour de la valeur
@@ -112,7 +112,7 @@
 				$('head').prepend('<meta name="heure_#id#" content=' +heure+ '>');
 				$('head').prepend('<meta name="minute_#id#" content=' +minute+ '>');
 			}
-			jeedom.cmd.update['#id#']({display_value:'#state#'});
+			jeedom.cmd.refreshValue([{cmd_id :'#id#', display_value:'#state#', valueDate:'#valueDate#', collectDate:'#collectDate#', alertLevel:'#alertLevel#', unit:'#unite#'}]);
 	</script>
 	<style>
 	.controlgroup-textinput{
