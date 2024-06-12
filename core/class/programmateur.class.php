@@ -342,10 +342,11 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('on');
 			$action->setName(__('On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::toggle');
-			$action->setTemplate('mobile','programmateur::toggle');
+			$action->setTemplate('dashboard','core::binarySwitch');
+			$action->setTemplate('mobile','core::binarySwitch');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
+			$action->setDisplay('forceReturnLineAfter','1');
 		}
 		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
@@ -361,10 +362,11 @@ class programmateur extends eqLogic {
 			$action = new programmateurCmd();
 			$action->setLogicalId('off');
 			$action->setName(__('Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::toggle');
-			$action->setTemplate('mobile','programmateur::toggle');
+			$action->setTemplate('dashboard','core::binarySwitch');
+			$action->setTemplate('mobile','core::binarySwitch');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
+			$action->setDisplay('forceReturnLineAfter','1');
 		}
 		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());

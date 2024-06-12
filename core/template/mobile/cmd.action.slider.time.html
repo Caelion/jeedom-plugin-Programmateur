@@ -9,8 +9,8 @@
 	<script>
 		// Définition des Min Max pour Heures & Minutes
 			// Récupération des valeurs initiales
-			Min =('#minValue#' == '') ? 0 : '#minValue#';
-			Max =('#maxValue#' == '') ? 2359: '#maxValue#';
+			var Min =('#minValue#' == '') ? 0 : '#minValue#';
+			var Max =('#maxValue#' == '') ? 2359: '#maxValue#';
 				if (Min < 0 || Min > Max || Min > 2359){Min = 0;}// Min = 0 si valeur incorrecte
 				if (Max > 2359){Max = 2359;}// Max = 2359 si valeur incorrecte
 			// Calcul des valeurs MinH et MinM
@@ -18,83 +18,56 @@
 			var Min_Minute = parseInt(Min) - Min_Heure * 100;
 			var Max_Heure = Math.floor(parseInt(Max) / 100);
 			var Max_Minute = parseInt(Max) - Max_Heure * 100;
-			// Sauvegarde les valeurs
-			$('head').prepend('<meta name="Max_#id#" content=' +Max+ '>');
-			$('head').prepend('<meta name="Min_#id#" content=' +Min+ '>');
-			// Identification des valeurs Heure et Minute avant modification
-			if (parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) >= 0 && parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) <= 2359) {
-				heure = (Max < 60) ? 0 : Math.floor(parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) / 100);
-				minute = parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) - heure * 100;
-			} else {
-				heure = 0;
-				minute = 0;
-			}
-			// Sauvegarde heure et minute actuelles
-			$('head').prepend('<meta name="heure_#id#" content=' +heure+ '>');
-			$('head').prepend('<meta name="minute_#id#" content=' +minute+ '>');
 		// Modification des heures
-			$('.cmd[data-cmd_uid=#uid#] .bt_minusH').on('click', function () {
-				// Lecture des valeurs min et max
-				Max = parseInt($('meta[name="Max_#id#"]').attr('content'));
-				Min = parseInt($('meta[name="Min_#id#"]').attr('content'));
-				if (parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) >= Min + 100) {// Si possible de baisser d'1 heure
-					jeedom.cmd.update['#id#']({display_value:(parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) - 100)});
-					$('.cmd[data-cmd_uid=#uid#] .in_value').trigger('change');
-				}
+    		document.querySelector('.cmd[data-cmd_uid="#uid#"] .bt_minusH').addEventListener('click', function() {
+				let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .in_value');
+				let step = 100;
+				let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) - step;
+				if (value < Min) {value = Min};
+				input.value = value + ' #unite#';
+				clearTimeout(window['timerHandle#id#']);
+				window['timerHandle#id#'] = setTimeout(function() {
+					jeedom.cmd.execute({id:'#id#', value:{slider:value}});
+				}, 1000);
 			});
-			$('.cmd[data-cmd_uid=#uid#] .bt_plusH').on('click', function () {
-				// Lecture des valeurs min et max
-				Max = parseInt($('meta[name="Max_#id#"]').attr('content'));
-				Min = parseInt($('meta[name="Min_#id#"]').attr('content'));
-				if (parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) <= Max - 100) {// Si possible d'augmenter d'1 heure
-					jeedom.cmd.update['#id#']({display_value:(parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) + 100)});
-					$('.cmd[data-cmd_uid=#uid#] .in_value').trigger('change');
-				}
+    		document.querySelector('.cmd[data-cmd_uid="#uid#"] .bt_plusH').addEventListener('click', function() {
+				let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .in_value');
+				let step = 100;
+				let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) + step;
+				if (value > Max) {value = Max};
+				input.value = value + ' #unite#';
+				clearTimeout(window['timerHandle#id#']);
+				window['timerHandle#id#'] = setTimeout(function() {
+					jeedom.cmd.execute({id:'#id#', value:{slider:value}});
+				}, 1000);
 			});
 		// Modification des minutes
-			$('.cmd[data-cmd_uid=#uid#] .bt_minusM').on('click', function () {
-				// Lecture des valeurs min max heure et minute
-				Max = parseInt($('meta[name="Max_#id#"]').attr('content'));
-				Min = parseInt($('meta[name="Min_#id#"]').attr('content'));
-				heure = parseInt($('meta[name="heure_#id#"]').attr('content'));
-				minute = parseInt($('meta[name="minute_#id#"]').attr('content'));
-				if (minute >= 1 && (heure * 100) + minute > Min ) {
-					jeedom.cmd.update['#id#']({display_value:(parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) - 1)});
-					$('.cmd[data-cmd_uid=#uid#] .in_value').trigger('change');
-				} else if (heure >=1 && (heure * 100) + minute > Min) {
-					jeedom.cmd.update['#id#']({display_value:(parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) - 40 - 1)});
-					$('.cmd[data-cmd_uid=#uid#] .in_value').trigger('change');
-				}
+    		document.querySelector('.cmd[data-cmd_uid="#uid#"] .bt_minusM').addEventListener('click', function() {
+				let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .in_value');
+				let step = 1;
+				let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) - step;
+				if (value.toString().substr(2, 2) > 59) {value = value - 40};
+				if (value < Min) {value = Min};
+				input.value = value + ' #unite#';
+				clearTimeout(window['timerHandle#id#']);
+				window['timerHandle#id#'] = setTimeout(function() {
+					jeedom.cmd.execute({id:'#id#', value:{slider:value}});
+				}, 1000);
 			});
-			$('.cmd[data-cmd_uid=#uid#] .bt_plusM').on('click', function () {
-				// Lecture des valeurs min max heure et minute
-				Max = parseInt($('meta[name="Max_#id#"]').attr('content'));
-				Min = parseInt($('meta[name="Min_#id#"]').attr('content'));
-				heure = parseInt($('meta[name="heure_#id#"]').attr('content'));
-				minute = parseInt($('meta[name="minute_#id#"]').attr('content'));
-				if ((minute < (60 - 1)) && (heure * 100) + minute < Max) {
-					jeedom.cmd.update['#id#']({display_value:(parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) + 1)});
-					$('.cmd[data-cmd_uid=#uid#] .in_value').trigger('change');
-				} else if((heure * 100) + minute < Max) {
-					jeedom.cmd.update['#id#']({display_value:(parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val()) + 40 + 1)});
-					$('.cmd[data-cmd_uid=#uid#] .in_value').trigger('change');
-				}
-			});
-		// Commande execute 
-			$('.cmd[data-cmd_uid=#uid#] .in_value').on('change', function () {
-				if (typeof timerHandle !== 'undefined') {
-					clearTimeout(timerHandle);
-					timerHandle = setTimeout(function() {
-						jeedom.cmd.execute({id: '#id#', value: {slider: $('.cmd[data-cmd_uid=#uid#] .in_value').val()}});
-					}, 1000)
-				} else {
-					timerHandle = setTimeout(function() {
-						jeedom.cmd.execute({id: '#id#', value: {slider: $('.cmd[data-cmd_uid=#uid#] .in_value').val()}});
-					}, 1000)
-				}
+    		document.querySelector('.cmd[data-cmd_uid="#uid#"] .bt_plusM').addEventListener('click', function() {
+				let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .in_value');
+				let step = 1;
+				let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) + step;
+				if (value.toString().substr(2, 2) > 59) {value = value + 40};
+				if (value > Max) {value = Max};
+				input.value = value + ' #unite#';
+				clearTimeout(window['timerHandle#id#']);
+				window['timerHandle#id#'] = setTimeout(function() {
+					jeedom.cmd.execute({id:'#id#', value:{slider:value}});
+				}, 1000);
 			});
 		// Fonction update
-			jeedom.cmd.update['#id#'] = function(_options){
+			jeedom.cmd.addUpdateFunction('#id#',function(_options) {
 				// Affichage des heures et des minutes sous forme de chaine de caractères
 				if (_options.display_value >= 0) {
 					$('.cmd[data-cmd_uid=#uid#] .in_value').val(_options.display_value); // Mise à jour de la valeur
@@ -108,11 +81,8 @@
 					// Mise a jour de la valeur
 					$('.cmd[data-cmd_uid=#uid#] .show_value').val(chaine);
 				}
-				// Sauvegarde des valeures heure et minutes
-				$('head').prepend('<meta name="heure_#id#" content=' +heure+ '>');
-				$('head').prepend('<meta name="minute_#id#" content=' +minute+ '>');
-			}
-			jeedom.cmd.update['#id#']({display_value:'#state#'});
+			});
+			jeedom.cmd.refreshValue([{cmd_id :'#id#', display_value:'#state#', valueDate:'#valueDate#', collectDate:'#collectDate#', alertLevel:'#alertLevel#', unit:'#unite#'}]);
 	</script>
 	<style>
 	.controlgroup-textinput{

@@ -1,10 +1,10 @@
 {
 	"id" : "programmateur",
 	"name" : "Programmateur",
-	"description" : "Plugin pour ajouter un programmateur à une commande",
+	"description" : "Plugin pour ajouter un programmateur à une commande ou à un scénario",
 	"licence" : "AGPL",
 	"author" : "Caelion",
-	"require" : "3.3.39",
+	"require" : "4.4.0",
 	"category" : "organization",
 	"changelog" : "https://caelion.github.io/jeedom-plugins-documentation/Programmateur/#language#/changelog",
 	"documentation" : "https://caelion.github.io/jeedom-plugins-documentation/Programmateur/#language#/",

@@ -8,50 +8,59 @@
 	<script>
 	if ('#big_change#'.toLowerCase() == 'oui') {$('.cmd[data-cmd_uid=#uid#] .bt_minusminus').show();} else {$('.cmd[data-cmd_uid=#uid#] .bt_minusminus').hide();}
 	if ('#big_change#'.toLowerCase() == 'oui') {$('.cmd[data-cmd_uid=#uid#] .bt_plusplus').show();} else {$('.cmd[data-cmd_uid=#uid#] .bt_plusplus').hide();}
-	$('.cmd[data-cmd_uid=#uid#] .bt_plusplus').on('click', function() {
-		var max = ('#maxValue#' == '') ? Number.MAX_VALUE : parseFloat('#maxValue#');
-		var step = 60;
-		if (parseFloat($('.cmd[data-cmd_uid=#uid#] .value').val()) <= max - step ){
-			jeedom.cmd.update['#id#']({display_value:parseFloat($('.cmd[data-cmd_uid=#uid#] .value').val()) + step});
-			$('.cmd[data-cmd_uid=#uid#] .value').trigger('change');
-		}
+
+	var step = (domUtils.issetWidgetOptParam('#step#', 'step')) ? parseFloat('#step#') : 1;
+
+    document.querySelector('.cmd[data-cmd_uid="#uid#"] .bt_plusplus').addEventListener('click', function() {
+		let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .value');
+		let step = 60;
+		let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) + step;
+		if (value > parseFloat('#maxValue#')) {value = parseFloat('#maxValue#')};
+		input.value = value + ' #unite#';
+		clearTimeout(window['timerHandle#id#']);
+		window['timerHandle#id#'] = setTimeout(function() {
+			jeedom.cmd.execute({id:'#id#', value:{slider:value}});
+		}, 1000);
 	});
-	$('.cmd[data-cmd_uid=#uid#] .bt_plus').on('click', function() {
-		var max = ('#maxValue#' == '') ? Number.MAX_VALUE : parseFloat('#maxValue#');
-		var step = (isNaN(parseFloat('#step#'))) ? 0.5 : parseFloat('#step#');
-		if (parseFloat($('.cmd[data-cmd_uid=#uid#] .value').val()) <= max - step ){
-			jeedom.cmd.update['#id#']({display_value:parseFloat($('.cmd[data-cmd_uid=#uid#] .value').val()) + step});
-			$('.cmd[data-cmd_uid=#uid#] .value').trigger('change');
-		}
+
+    document.querySelector('.cmd[data-cmd_uid="#uid#"] .bt_plus').addEventListener('click', function() {
+		let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .value');
+		let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) + step;
+		if (value > parseFloat('#maxValue#')) {value = parseFloat('#maxValue#')};
+		input.value = value + ' #unite#';
+		clearTimeout(window['timerHandle#id#']);
+		window['timerHandle#id#'] = setTimeout(function() {
+			jeedom.cmd.execute({id:'#id#', value:{slider:value}});
+		}, 1000);
 	});
-	$('.cmd[data-cmd_uid=#uid#] .bt_minus').on('click', function() {
-		var min= ('#minValue#' == '') ? Number.MIN_VALUE : parseFloat('#minValue#');
-		var step = (isNaN(parseFloat('#step#'))) ? 0.5 : parseFloat('#step#');
-		if (parseFloat($('.cmd[data-cmd_uid=#uid#] .value').val()) >= min + step ){
-			jeedom.cmd.update['#id#']({display_value:parseFloat($('.cmd[data-cmd_uid=#uid#] .value').val()) - step});
-			$('.cmd[data-cmd_uid=#uid#] .value').trigger('change');
-		}
+
+    document.querySelector('.cmd[data-cmd_uid="#uid#"] .bt_minus').addEventListener('click', function() {
+		let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .value');
+		let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) - step;
+		if (value < parseFloat('#minValue#')) {value = parseFloat('#minValue#')};
+		input.value = value + ' #unite#';
+		clearTimeout(window['timerHandle#id#']);
+		window['timerHandle#id#'] = setTimeout(function() {
+			jeedom.cmd.execute({id:'#id#', value:{slider:value}});
+		}, 1000);
 	});
-	$('.cmd[data-cmd_uid=#uid#] .bt_minusminus').on('click', function() {
-		var min= ('#minValue#' == '') ? Number.MIN_VALUE : parseFloat('#minValue#');
-		var step = 60;
-		if (parseFloat($('.cmd[data-cmd_uid=#uid#] .value').val()) >= min + step ){
-			jeedom.cmd.update['#id#']({display_value:parseFloat($('.cmd[data-cmd_uid=#uid#] .value').val()) - step});
-			$('.cmd[data-cmd_uid=#uid#] .value').trigger('change');
-		}
+
+    document.querySelector('.cmd[data-cmd_uid="#uid#"] .bt_minusminus').addEventListener('click', function() {
+		let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .value');
+		let step = 60;
+		let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) - step;
+		if (value < parseFloat('#minValue#')) {value = parseFloat('#minValue#')};
+		input.value = value + ' #unite#';
+		clearTimeout(window['timerHandle#id#']);
+		window['timerHandle#id#'] = setTimeout(function() {
+			jeedom.cmd.execute({id:'#id#', value:{slider:value}});
+		}, 1000);
 	});
-	$('.cmd[data-cmd_uid=#uid#] .value').on('change', function () {
-		if (typeof timerHandle#uid# !== 'undefined') {
-			clearTimeout(timerHandle#uid#);
-		}
-		timerHandle#uid# = setTimeout(function() {
-			jeedom.cmd.execute({id:'#id#', value: {slider: $('.cmd[data-cmd_uid=#uid#] .value').val().replace("#unite#", "").replace(" ", "")}});
-		}, 1000)
-	});
-	jeedom.cmd.update['#id#'] = function(_options){
+
+	jeedom.cmd.addUpdateFunction('#id#',function(_options) {
 		$('.cmd[data-cmd_uid=#uid#] .value').val(_options.display_value+' #unite#');
-	}
-	jeedom.cmd.update['#id#']({display_value:'#state#'});
+	});
+	jeedom.cmd.refreshValue([{cmd_id :'#id#', display_value:'#state#', valueDate:'#valueDate#', collectDate:'#collectDate#', alertLevel:'#alertLevel#', unit:'#unite#'}]);
 	</script>
 	<style>
 	.controlgroup-textinput{
