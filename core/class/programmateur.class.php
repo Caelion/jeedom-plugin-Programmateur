@@ -115,7 +115,7 @@ class programmateur extends eqLogic {
 		}
 	}
 
-	public function nextprog($equipement) {
+	public static function nextprog($equipement) {
 		$programmateur = eqLogic::byId($equipement);
 		log::add('programmateur','debug','- Appel de la fonction Nextprog par ' . $programmateur->getHumanName() . ' :');
 		if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
