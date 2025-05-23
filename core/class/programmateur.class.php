@@ -172,7 +172,7 @@ class programmateur extends eqLogic {
 						$heure = $programmateur->getCmd(null,'horaire')->execCmd();
 						$heure = substr('000'.$heure,-4);//Traitement des 0 sur les heures < 10:00
 						$heure_timestamp = strtotime(date('d-m-Y') . ' ' . $heure);
-						$duree = $programmateur->getCmd(null,'duree')->execCmd();
+						$duree = (int) $programmateur->getCmd(null,'duree')->execCmd();
 						if ($duree < 0) {
 							$heure_timestamp = $heure_timestamp + $duree * 60;
 							$duree = - $duree;
@@ -222,7 +222,7 @@ class programmateur extends eqLogic {
 		$programmateur = eqLogic::byId($equipement);
 		if (is_object($programmateur)) {
 			if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
-				$duree = $programmateur->getCmd(null,'duree')->execCmd();
+				$duree = (int) $programmateur->getCmd(null,'duree')->execCmd();
 				$fin = strtotime('now') + abs($duree) * 60;
 				log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . date('d/m/Y à H:i', $fin + 60));
 				if ($duree > 0) {
