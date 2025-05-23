@@ -647,14 +647,18 @@ class programmateurCmd extends cmd {
 					$virtualCmd = cmd::byId($this->getConfiguration('updateCmdId'));
 					$value = $this->getConfiguration('updateCmdToValue');
 					$result = jeedom::evaluateExpression($value);
-					$virtualCmd->event($result);
+					if (is_object($virtualCmd)) {
+						$virtualCmd->event($result);
+					}
 				break;
 				case 'slider':
 					log::add('programmateur','debug','- Action sur Slider');
 					$virtualCmd = cmd::byId($this->getConfiguration('infoName'));
 					$value = $_options['slider'];
 					$result = jeedom::evaluateExpression($value);
-					$virtualCmd->event($result);
+					if (is_object($virtualCmd)) {
+						$virtualCmd->event($result);
+					}
 				break;
 			}
 			programmateur::nextprog($eqlogic);
