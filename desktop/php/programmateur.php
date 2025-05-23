@@ -210,7 +210,7 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
 							</div>
 						</div>
 						<div class="form-group">
-							<label class="col-sm-3 control-label">{{Exécution de l'action de fin dès la mise sur Off du programmateur}}</label>
+							<label class="col-sm-3 control-label">{{Exécution de l'action 2 dès la mise sur Off du programmateur}}</label>
 							<div class="col-sm-1" style="width:20px">
 								<label class="checkbox-inline" style="vertical-align:top;"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="EndOnOff"/></label>
 							</div>
