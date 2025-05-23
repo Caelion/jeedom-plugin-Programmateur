@@ -26,8 +26,6 @@ class programmateur extends eqLogic {
 	/* ***********************Methode static*************************** */
 
 	public static function nextprog_on($_params) {
-		$eqLogic = eqLogic::byId($_params['eq_id']);
-		log::add('programmateur','debug','Exécution de la fonction Nextprog_on pour l\'équipement ' . $eqLogic->getHumanName());
 		// Suppression des crons Off associés
 		$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $_params['eq_id']);
 		if (is_array($crons) && count($crons) > 0) {
@@ -38,7 +36,9 @@ class programmateur extends eqLogic {
 				}
 			}
 		}
+		$eqLogic = eqLogic::byId($_params['eq_id']);
 		if (is_object($eqLogic)) {
+			log::add('programmateur','debug','Exécution de la fonction Nextprog_on pour l\'équipement ' . $eqLogic->getHumanName());
 			$cmd_state = $eqLogic->getCmd(null, 'etat');
 			if (!is_object($cmd_state) || $cmd_state->execCmd() != 1) {// On s'assure que la planification est toujours sur on sinon on quitte
 				return;
@@ -88,8 +88,8 @@ class programmateur extends eqLogic {
 
 	public static function nextprog_off($_params) {
 		$eqLogic = eqLogic::byId($_params['eq_id']);
-		log::add('programmateur','debug','Exécution de la fonction Nextprog_off pour l\'équipement ' . $eqLogic->getHumanName());
 		if (is_object($eqLogic)) {
+			log::add('programmateur','debug','Exécution de la fonction Nextprog_off pour l\'équipement ' . $eqLogic->getHumanName());
 			$cmd_state = $eqLogic->getCmd(null,'etat');
 			if (!is_object($cmd_state)) {// On s'assure que la commande etat existe sinon on quitte
 				return;
@@ -127,88 +127,90 @@ class programmateur extends eqLogic {
 
 	public static function nextprog($equipement) {
 		$programmateur = eqLogic::byId($equipement);
-		log::add('programmateur','debug','- Appel de la fonction Nextprog par ' . $programmateur->getHumanName() . ' :');
-		if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
-			$cmd = $programmateur->getCmd(null,'etat');// Retourne la commande "etat" si elle existe
-			if (is_object($cmd)) {//Si la commande existe
-				$cmdValue = $cmd->execCmd();
-				if ($cmdValue == 1) {// Programmateur sur On
-					$today = date('N');
-					$lundi = $programmateur->getCmd(null,'lundi')->execCmd();
-					$mardi = $programmateur->getCmd(null,'mardi')->execCmd();
-					$mercredi = $programmateur->getCmd(null,'mercredi')->execCmd();
-					$jeudi = $programmateur->getCmd(null,'jeudi')->execCmd();
-					$vendredi = $programmateur->getCmd(null,'vendredi')->execCmd();
-					$samedi = $programmateur->getCmd(null,'samedi')->execCmd();
-					$dimanche = $programmateur->getCmd(null,'dimanche')->execCmd();
+		if (is_object($programmateur)) {
+			log::add('programmateur','debug','- Appel de la fonction Nextprog par ' . $programmateur->getHumanName() . ' :');
+			if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
+				$cmd = $programmateur->getCmd(null,'etat');// Retourne la commande "etat" si elle existe
+				if (is_object($cmd)) {//Si la commande existe
+					$cmdValue = $cmd->execCmd();
+					if ($cmdValue == 1) {// Programmateur sur On
+						$today = date('N');
+						$lundi = $programmateur->getCmd(null,'lundi')->execCmd();
+						$mardi = $programmateur->getCmd(null,'mardi')->execCmd();
+						$mercredi = $programmateur->getCmd(null,'mercredi')->execCmd();
+						$jeudi = $programmateur->getCmd(null,'jeudi')->execCmd();
+						$vendredi = $programmateur->getCmd(null,'vendredi')->execCmd();
+						$samedi = $programmateur->getCmd(null,'samedi')->execCmd();
+						$dimanche = $programmateur->getCmd(null,'dimanche')->execCmd();
 
-					$JF = 0;
-					$JF_box = $programmateur->getConfiguration('JF');
-					if ($programmateur->getConfiguration('CommandeJF') != '') {
-						if (substr($programmateur->getConfiguration('CommandeJF'),1,8) == 'variable') {
-							$JF = scenario::getData(substr($programmateur->getConfiguration('CommandeJF'),10,-2));
-						} else {
-							$cmd = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeJF')));
-							if (is_object($cmd)) {
-								$JF = $cmd->execCmd();
-							}
-						}
-					}
-					log::add('programmateur','debug','  - JF : Actif : ' . $JF_box . ' - Critère respecté : ' . $JF);
-					$Mode = 0;
-					$Mode_box = $programmateur->getConfiguration('Mode');
-					if ($programmateur->getConfiguration('CommandeMode') != '') {
-						$cmd = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeMode')));
-						if (is_object($cmd)) {
-							$Mode = $cmd->execCmd();
-							if ($Mode == $programmateur->getConfiguration('ExclMode')) {
-								$Mode = 1;
-							} else {$Mode = 0;}
-						}
-					}
-					log::add('programmateur','debug','  - Mode : Actif : ' . $Mode_box . ' - Critère respecté : ' . $Mode);
-
-					$heure = $programmateur->getCmd(null,'horaire')->execCmd();
-					$heure = substr('000'.$heure,-4);//Traitement des 0 sur les heures < 10:00
-					$heure_timestamp = strtotime(date('d-m-Y') . ' ' . $heure);
-					$duree = $programmateur->getCmd(null,'duree')->execCmd();
-					if ($duree < 0) {
-						$heure_timestamp = $heure_timestamp + $duree * 60;
-						$duree = - $duree;
-					}
-
-					$array = array('eq_id' => intval($programmateur->getId()),'delay' => $duree*60,'typeaction1' => $programmateur->getConfiguration('TypeAction1'),'action1' => $programmateur->getConfiguration('Action1'),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'),'timestamp' => $heure_timestamp, 'tagaction1' => $programmateur->getConfiguration('TagAction1'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
-					// Si on doit programmer un cron
-					if (($heure_timestamp > strtotime(date('H:i'))) && (($JF_box == 1 && $JF == 0) || $JF_box == 0) && (($Mode_box == 1 && $Mode == 0) || $Mode_box == 0) && (($today == 1 && $lundi == 1)||($today == 2 && $mardi == 1)||($today == 3 && $mercredi == 1)||($today == 4 && $jeudi == 1)||($today == 5 && $vendredi == 1)||($today == 6 && $samedi == 1)||($today == 7 && $dimanche == 1))) {
-						log::add('programmateur','debug','  - Nouveau cron à '.date('H:i',$array['timestamp']));
-						$cron = new cron();
-						$cron->setClass('programmateur');
-						$cron->setFunction('nextprog_on');
-						$cron->setOption($array);
-						$cron->setOnce(1);
-						$cron->setSchedule(cron::convertDateToCron($array['timestamp']));
-						$cron->save();
-					} else {
-						log::add('programmateur','debug','  - Pas de programmation à mettre en place');
-					}
-				} else {
-					log::add('programmateur','debug','  Action de fin sur mise sur off de l\'équipement');
-					$EndOnOff = $programmateur->getConfiguration('EndOnOff');
-					log::add('programmateur','debug','  - EndOnOff : ' . $EndOnOff);
-					if ($EndOnOff == 1){
-						// Suppression des crons Off éventuels
-						$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $equipement);
-						if (is_array($crons) && count($crons) > 0) {
-							foreach ($crons as $cron) {
-								if ($cron->getState() != 'run') {
-									log::add('programmateur','debug','  - Suppression du cron Nextprog_off : '.$cron->getSchedule());
-									$cron->remove();
+						$JF = 0;
+						$JF_box = $programmateur->getConfiguration('JF');
+						if ($programmateur->getConfiguration('CommandeJF') != '') {
+							if (substr($programmateur->getConfiguration('CommandeJF'),1,8) == 'variable') {
+								$JF = scenario::getData(substr($programmateur->getConfiguration('CommandeJF'),10,-2));
+							} else {
+								$cmd = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeJF')));
+								if (is_object($cmd)) {
+									$JF = $cmd->execCmd();
 								}
 							}
-							// Exécution immédiate de Nextprog_off
-							log::add('programmateur','debug','  - Exécution immédiate de Nextprog_off');
-							$array = array('eq_id' => intval($programmateur->getId()),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
-							programmateur::nextprog_off($array);
+						}
+						log::add('programmateur','debug','  - JF : Actif : ' . $JF_box . ' - Critère respecté : ' . $JF);
+						$Mode = 0;
+						$Mode_box = $programmateur->getConfiguration('Mode');
+						if ($programmateur->getConfiguration('CommandeMode') != '') {
+							$cmd = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeMode')));
+							if (is_object($cmd)) {
+								$Mode = $cmd->execCmd();
+								if ($Mode == $programmateur->getConfiguration('ExclMode')) {
+									$Mode = 1;
+								} else {$Mode = 0;}
+							}
+						}
+						log::add('programmateur','debug','  - Mode : Actif : ' . $Mode_box . ' - Critère respecté : ' . $Mode);
+
+						$heure = $programmateur->getCmd(null,'horaire')->execCmd();
+						$heure = substr('000'.$heure,-4);//Traitement des 0 sur les heures < 10:00
+						$heure_timestamp = strtotime(date('d-m-Y') . ' ' . $heure);
+						$duree = $programmateur->getCmd(null,'duree')->execCmd();
+						if ($duree < 0) {
+							$heure_timestamp = $heure_timestamp + $duree * 60;
+							$duree = - $duree;
+						}
+
+						$array = array('eq_id' => intval($programmateur->getId()),'delay' => $duree*60,'typeaction1' => $programmateur->getConfiguration('TypeAction1'),'action1' => $programmateur->getConfiguration('Action1'),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'),'timestamp' => $heure_timestamp, 'tagaction1' => $programmateur->getConfiguration('TagAction1'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
+						// Si on doit programmer un cron
+						if (($heure_timestamp > strtotime(date('H:i'))) && (($JF_box == 1 && $JF == 0) || $JF_box == 0) && (($Mode_box == 1 && $Mode == 0) || $Mode_box == 0) && (($today == 1 && $lundi == 1)||($today == 2 && $mardi == 1)||($today == 3 && $mercredi == 1)||($today == 4 && $jeudi == 1)||($today == 5 && $vendredi == 1)||($today == 6 && $samedi == 1)||($today == 7 && $dimanche == 1))) {
+							log::add('programmateur','debug','  - Nouveau cron à '.date('H:i',$array['timestamp']));
+							$cron = new cron();
+							$cron->setClass('programmateur');
+							$cron->setFunction('nextprog_on');
+							$cron->setOption($array);
+							$cron->setOnce(1);
+							$cron->setSchedule(cron::convertDateToCron($array['timestamp']));
+							$cron->save();
+						} else {
+							log::add('programmateur','debug','  - Pas de programmation à mettre en place');
+						}
+					} else {
+						log::add('programmateur','debug','  Action de fin sur mise sur off de l\'équipement');
+						$EndOnOff = $programmateur->getConfiguration('EndOnOff');
+						log::add('programmateur','debug','  - EndOnOff : ' . $EndOnOff);
+						if ($EndOnOff == 1){
+							// Suppression des crons Off éventuels
+							$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $equipement);
+							if (is_array($crons) && count($crons) > 0) {
+								foreach ($crons as $cron) {
+									if ($cron->getState() != 'run') {
+										log::add('programmateur','debug','  - Suppression du cron Nextprog_off : '.$cron->getSchedule());
+										$cron->remove();
+									}
+								}
+								// Exécution immédiate de Nextprog_off
+								log::add('programmateur','debug','  - Exécution immédiate de Nextprog_off');
+								$array = array('eq_id' => intval($programmateur->getId()),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
+								programmateur::nextprog_off($array);
+							}
 						}
 					}
 				}
@@ -218,60 +220,62 @@ class programmateur extends eqLogic {
 
 	public static function forced($equipement) {
 		$programmateur = eqLogic::byId($equipement);
-		if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
-			$duree = $programmateur->getCmd(null,'duree')->execCmd();
-			$fin = strtotime('now') + abs($duree) * 60;
-			log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . date('d/m/Y à H:i', $fin + 60));
-			if ($duree > 0) {
-				$on = 1;
-				$off = 2;
-			} else {
-				$on = 2;
-				$off = 1;
-			}
-			$_params = array('eq_id' => intval($programmateur->getId()),'typeaction1' => $programmateur->getConfiguration('TypeAction'.$on),'action1' => $programmateur->getConfiguration('Action'.$on),'typeaction2' => $programmateur->getConfiguration('TypeAction'.$off),'action2' => $programmateur->getConfiguration('Action'.$off),'tagaction1' => $programmateur->getConfiguration('TagAction'.$on),'tagaction2' => $programmateur->getConfiguration('TagAction'.$off));
-
-			if (isset($_params['action1']) && $_params['action1'] != '') {
-				if ($_params['typeaction1'] == 'Commande') {
-					$cmd = cmd::byId(str_replace('#','',$_params['action1']));
-					if (is_object($cmd)) {
-						$cmd->execCmd();
-						$name = $cmd->getHumanName();
-					}
-				} else if ($_params['typeaction1'] == 'Scenario') {
-					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
-					if (is_object($actionscenario)) {
-						if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
-							$tags = array();
-							$args = arg2array($_params['tagaction1']);
-							foreach ($args as $key => $value) {
-								$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
-							}
-							$actionscenario->setTags($tags);
-						}
-						$actionscenario->launch();
-						$name = $actionscenario->getHumanName();
-					}
+		if (is_object($programmateur)) {
+			if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
+				$duree = $programmateur->getCmd(null,'duree')->execCmd();
+				$fin = strtotime('now') + abs($duree) * 60;
+				log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . date('d/m/Y à H:i', $fin + 60));
+				if ($duree > 0) {
+					$on = 1;
+					$off = 2;
+				} else {
+					$on = 2;
+					$off = 1;
 				}
-				log::add('programmateur','info','  - Action 1 - '. $name);
-			}
-			if (isset($_params['action2']) && $_params['action2'] != '') { // Si on doit programmer un cron
-				log::add('programmateur','debug','  - Nouveau cron mis en place : ' . date('d/m/Y à H:i',$fin + 60));
-				$cron = new cron();
-				$cron->setClass('programmateur');
-				$cron->setFunction('forced_off');
-				$cron->setOption($_params);
-				$cron->setOnce(1);
-				$cron->setSchedule(cron::convertDateToCron($fin));
-				$cron->save();
+				$_params = array('eq_id' => intval($programmateur->getId()),'typeaction1' => $programmateur->getConfiguration('TypeAction'.$on),'action1' => $programmateur->getConfiguration('Action'.$on),'typeaction2' => $programmateur->getConfiguration('TypeAction'.$off),'action2' => $programmateur->getConfiguration('Action'.$off),'tagaction1' => $programmateur->getConfiguration('TagAction'.$on),'tagaction2' => $programmateur->getConfiguration('TagAction'.$off));
+
+				if (isset($_params['action1']) && $_params['action1'] != '') {
+					if ($_params['typeaction1'] == 'Commande') {
+						$cmd = cmd::byId(str_replace('#','',$_params['action1']));
+						if (is_object($cmd)) {
+							$cmd->execCmd();
+							$name = $cmd->getHumanName();
+						}
+					} else if ($_params['typeaction1'] == 'Scenario') {
+						$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
+						if (is_object($actionscenario)) {
+							if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
+								$tags = array();
+								$args = arg2array($_params['tagaction1']);
+								foreach ($args as $key => $value) {
+									$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+								}
+								$actionscenario->setTags($tags);
+							}
+							$actionscenario->launch();
+							$name = $actionscenario->getHumanName();
+						}
+					}
+					log::add('programmateur','info','  - Action 1 - '. $name);
+				}
+				if (isset($_params['action2']) && $_params['action2'] != '') { // Si on doit programmer un cron
+					log::add('programmateur','debug','  - Nouveau cron mis en place : ' . date('d/m/Y à H:i',$fin + 60));
+					$cron = new cron();
+					$cron->setClass('programmateur');
+					$cron->setFunction('forced_off');
+					$cron->setOption($_params);
+					$cron->setOnce(1);
+					$cron->setSchedule(cron::convertDateToCron($fin));
+					$cron->save();
+				}
 			}
 		}
 	}
 
 	public static function forced_off($_params) {
 		$eqLogic = eqLogic::byId($_params['eq_id']);
-		log::add('programmateur','debug','Exécution de la fonction Forced_off pour l\'équipement ' . $eqLogic->getHumanName());
 		if (is_object($eqLogic)) {
+			log::add('programmateur','debug','Exécution de la fonction Forced_off pour l\'équipement ' . $eqLogic->getHumanName());
 			if (isset($_params['action2']) && $_params['action2'] != '') {
 				if ($_params['typeaction2'] == 'Commande') {
 					$cmd = cmd::byId(str_replace('#','',$_params['action2']));
