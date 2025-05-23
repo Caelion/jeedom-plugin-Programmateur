@@ -44,8 +44,13 @@ class programmateur extends eqLogic {
 				return;
 			}
 			if (isset($_params['action1']) && $_params['action1'] != '') {
-				if ($_params['typeaction1'] == 'Commande') {cmd::byId(str_replace('#','',$_params['action1']))->execCmd();}
-				else if ($_params['typeaction1'] == 'Scenario') {
+				if ($_params['typeaction1'] == 'Commande') {
+					$cmd = cmd::byId(str_replace('#','',$_params['action1']));
+					if (is_object($cmd)) {
+						$cmd->execCmd();
+						$name = $cmd->getHumanName();
+					}
+				} else if ($_params['typeaction1'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
 					if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
 						$tags = array();
@@ -56,10 +61,8 @@ class programmateur extends eqLogic {
 						$actionscenario->setTags($tags);
 					}
 					$actionscenario->launch();
+					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])))->getHumanName();
 				}
-
-				if ($_params['typeaction1'] == 'Commande') {$name = cmd::byId(str_replace('#','',$_params['action1']))->getHumanName();}
-				else if ($_params['typeaction1'] == 'Scenario') {$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])))->getHumanName();}
 				log::add('programmateur','info','Nextprog - ' . $_params['eq_id'] . ' - Action 1 - '. $name);
 			}
 			if (isset($_params['delay']) && $_params['delay'] > 0 && isset($_params['action2']) && $_params['action2'] != '') {
@@ -90,8 +93,13 @@ class programmateur extends eqLogic {
 				return;
 			}
 			if (isset($_params['action2']) && $_params['action2'] != '') {
-				if ($_params['typeaction2'] == 'Commande') {cmd::byId(str_replace('#','',$_params['action2']))->execCmd();}
-				else if ($_params['typeaction2'] == 'Scenario') {
+				if ($_params['typeaction2'] == 'Commande') {
+					$cmd = cmd::byId(str_replace('#','',$_params['action2']));
+					if (is_object($cmd)) {
+						$cmd->execCmd();
+						$name = $cmd->getHumanName();
+					}
+				} else if ($_params['typeaction2'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])));
 					if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
 						$tags = array();
@@ -102,10 +110,8 @@ class programmateur extends eqLogic {
 						$actionscenario->setTags($tags);
 					}
 					$actionscenario->launch();
+					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])))->getHumanName();
 				}
-
-				if ($_params['typeaction2'] == 'Commande') {$name = cmd::byId(str_replace('#','',$_params['action2']))->getHumanName();}
-				else if ($_params['typeaction2'] == 'Scenario') {$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])))->getHumanName();}
 				log::add('programmateur','info','Nextprog - ' . $_params['eq_id'] . ' - Action 2 - '. $name);
 			}
 			$eqLogic->setConfiguration('RepeatCount',$eqLogic->getConfiguration('RepeatCount')+1)->save();// Mise du compteur à +1
@@ -138,17 +144,23 @@ class programmateur extends eqLogic {
 						if (substr($programmateur->getConfiguration('CommandeJF'),1,8) == 'variable') {
 							$JF = scenario::getData(substr($programmateur->getConfiguration('CommandeJF'),10,-2));
 						} else {
-							$JF = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeJF')))->execCmd();
+							$cmd = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeJF')));
+							if (is_object($cmd)) {
+								$JF = $cmd->execCmd();
+							}
 						}
 					}
 					log::add('programmateur','debug','  - JF : Actif : ' . $JF_box . ' - Critère respecté : ' . $JF);
 					$Mode = 0;
 					$Mode_box = $programmateur->getConfiguration('Mode');
 					if ($programmateur->getConfiguration('CommandeMode') != '') {
-						$Mode = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeMode')))->execCmd();
-						if ($Mode == $programmateur->getConfiguration('ExclMode')) {
-							$Mode = 1;
-						} else {$Mode = 0;}
+						$cmd = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeMode')));
+						if (is_object($cmd)) {
+							$Mode = $cmd->execCmd();
+							if ($Mode == $programmateur->getConfiguration('ExclMode')) {
+								$Mode = 1;
+							} else {$Mode = 0;}
+						}
 					}
 					log::add('programmateur','debug','  - Mode : Actif : ' . $Mode_box . ' - Critère respecté : ' . $Mode);
 
@@ -217,8 +229,11 @@ class programmateur extends eqLogic {
 
 			if (isset($_params['action1']) && $_params['action1'] != '') {
 				if ($_params['typeaction1'] == 'Commande') {
-					cmd::byId(str_replace('#','',$_params['action1']))->execCmd();
-					$name = cmd::byId(str_replace('#','',$_params['action1']))->getHumanName();
+					$cmd = cmd::byId(str_replace('#','',$_params['action1']));
+					if (is_object($cmd)) {
+						$cmd->execCmd();
+						$name = $cmd->getHumanName();
+					}
 				} else if ($_params['typeaction1'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
 					if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
@@ -253,8 +268,11 @@ class programmateur extends eqLogic {
 		if (is_object($eqLogic)) {
 			if (isset($_params['action2']) && $_params['action2'] != '') {
 				if ($_params['typeaction2'] == 'Commande') {
-					cmd::byId(str_replace('#','',$_params['action2']))->execCmd();
-					$name = cmd::byId(str_replace('#','',$_params['action2']))->getHumanName();
+					$cmd = cmd::byId(str_replace('#','',$_params['action2']));
+					if (is_object($cmd)) {
+						$cmd->execCmd();
+						$name = $cmd->getHumanName();
+					}
 				} else if ($_params['typeaction2'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])));
 					if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
@@ -508,6 +526,7 @@ class programmateur extends eqLogic {
 			$action->setTemplate('mobile','programmateur::delay');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
+				$arr = [];
 				$arr['step'] = 10;
 				$arr['big_change'] = 'Oui';
 			$action->setDisplay('parameters', $arr);
