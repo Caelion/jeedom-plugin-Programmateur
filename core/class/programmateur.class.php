@@ -52,16 +52,18 @@ class programmateur extends eqLogic {
 					}
 				} else if ($_params['typeaction1'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
-					if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
-						$tags = array();
-						$args = arg2array($_params['tagaction1']);
-						foreach ($args as $key => $value) {
-							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+					if (is_object($actionscenario)) {
+						if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
+							$tags = array();
+							$args = arg2array($_params['tagaction1']);
+							foreach ($args as $key => $value) {
+								$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+							}
+							$actionscenario->setTags($tags);
 						}
-						$actionscenario->setTags($tags);
+						$actionscenario->launch();
+						$name = $actionscenario->getHumanName();
 					}
-					$actionscenario->launch();
-					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])))->getHumanName();
 				}
 				log::add('programmateur','info','Nextprog - ' . $_params['eq_id'] . ' - Action 1 - '. $name);
 			}
@@ -101,16 +103,18 @@ class programmateur extends eqLogic {
 					}
 				} else if ($_params['typeaction2'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])));
-					if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
-						$tags = array();
-						$args = arg2array($_params['tagaction2']);
-						foreach ($args as $key => $value) {
-							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+					if (is_object($actionscenario)) {
+						if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
+							$tags = array();
+							$args = arg2array($_params['tagaction2']);
+							foreach ($args as $key => $value) {
+								$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+							}
+							$actionscenario->setTags($tags);
 						}
-						$actionscenario->setTags($tags);
+						$actionscenario->launch();
+						$name = $actionscenario->getHumanName();
 					}
-					$actionscenario->launch();
-					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])))->getHumanName();
 				}
 				log::add('programmateur','info','Nextprog - ' . $_params['eq_id'] . ' - Action 2 - '. $name);
 			}
@@ -236,16 +240,18 @@ class programmateur extends eqLogic {
 					}
 				} else if ($_params['typeaction1'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
-					if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
-						$tags = array();
-						$args = arg2array($_params['tagaction1']);
-						foreach ($args as $key => $value) {
-							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+					if (is_object($actionscenario)) {
+						if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
+							$tags = array();
+							$args = arg2array($_params['tagaction1']);
+							foreach ($args as $key => $value) {
+								$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+							}
+							$actionscenario->setTags($tags);
 						}
-						$actionscenario->setTags($tags);
+						$actionscenario->launch();
+						$name = $actionscenario->getHumanName();
 					}
-					$actionscenario->launch();
-					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])))->getHumanName();
 				}
 				log::add('programmateur','info','  - Action 1 - '. $name);
 			}
@@ -275,16 +281,18 @@ class programmateur extends eqLogic {
 					}
 				} else if ($_params['typeaction2'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])));
-					if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
-						$tags = array();
-						$args = arg2array($_params['tagaction2']);
-						foreach ($args as $key => $value) {
-							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+					if (is_object($actionscenario)) {
+						if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
+							$tags = array();
+							$args = arg2array($_params['tagaction2']);
+							foreach ($args as $key => $value) {
+								$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+							}
+							$actionscenario->setTags($tags);
 						}
-						$actionscenario->setTags($tags);
+						$actionscenario->launch();
+						$name = $actionscenario->getHumanName();
 					}
-					$actionscenario->launch();
-					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])))->getHumanName();
 				}
 				log::add('programmateur','info','  - Action 2 - '. $name);
 			}
