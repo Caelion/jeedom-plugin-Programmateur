@@ -1,16 +1,18 @@
 {
 	"id" : "programmateur",
 	"name" : "Programmateur",
-	"description" : "Plugin pour ajouter un programmateur à une commande ou à un scénario",
-	"licence" : "AGPL",
+	"description" : "Plugin Jeedom permettant de programmer des actions ou scénarios selon des horaires personnalisés, avec gestion avancée des jours et délais.",
+	"licence" : "AGPL-3.0",
 	"author" : "Caelion",
 	"require" : "4.4.0",
 	"category" : "organization",
 	"changelog" : "https://caelion.github.io/jeedom-plugins-documentation/Programmateur/#language#/changelog",
 	"documentation" : "https://caelion.github.io/jeedom-plugins-documentation/Programmateur/#language#/",
-	"language" : ["fr_FR","en_US","de_DE","it_IT","sp_SP","ru_RU","id_ID"],
+	"language" : ["fr_FR","en_US","de_DE","it_IT","es_ES","ru_RU","id_ID"],
 	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile","v4"],
 	"hasDependency" : false,
 	"hasOwnDeamon" : false,
-	"maxDependancyInstallTime" : 0
+	"maxDependancyInstallTime" : 0,
+	"icon" : "plugin_info/programmateur_icon.png",
+	"support" : "https://github.com/Caelion/jeedom-plugin-Programmateur/issues"
 }

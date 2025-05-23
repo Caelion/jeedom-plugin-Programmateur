@@ -18,14 +18,26 @@
 
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
+/*
+ * Fonction appelée à l'installation du plugin.
+ * Laisser vide si aucune action spécifique n'est requise.
+*/
 function programmateur_install() {
 	
 }
 
+/*
+ * Fonction appelée lors d'une mise à jour du plugin.
+ * Ajouter ici les migrations de données ou évolutions de structure si nécessaire.
+*/
 function programmateur_update() {
 	
 }
 
+/*
+ * Fonction appelée à la suppression du plugin.
+ * Ajouter ici le nettoyage éventuel (crons, objets orphelins...).
+*/
 function programmateur_remove() {
 	
 }

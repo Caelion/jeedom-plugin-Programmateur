@@ -329,7 +329,7 @@ class programmateur extends eqLogic {
 			$info->setLogicalId('etat');
 			$info->setName(__('Etat', __FILE__));
 			$info->setIsVisible(0);
-			$info->setisHistorized(1);
+			$info->setIsHistorized(1);
 		}
 		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
@@ -377,362 +377,72 @@ class programmateur extends eqLogic {
 		$action->setSubType('other');
 		$action->save();
 
-		$info = $this->getCmd(null, 'lundi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('lundi');
-			$info->setName(__('Lundi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
+		// Tableau des jours
+		$jours = [
+			['logicalId' => 'lundi',    'short' => 'lun', 'label' => __('Lundi', __FILE__)],
+			['logicalId' => 'mardi',    'short' => 'mar', 'label' => __('Mardi', __FILE__)],
+			['logicalId' => 'mercredi', 'short' => 'mer', 'label' => __('Mercredi', __FILE__)],
+			['logicalId' => 'jeudi',    'short' => 'jeu', 'label' => __('Jeudi', __FILE__)],
+			['logicalId' => 'vendredi', 'short' => 'ven', 'label' => __('Vendredi', __FILE__)],
+			['logicalId' => 'samedi',   'short' => 'sam', 'label' => __('Samedi', __FILE__)],
+			['logicalId' => 'dimanche', 'short' => 'dim', 'label' => __('Dimanche', __FILE__)]
+		];
 
-		$action = $this->getCmd(null, 'lun_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('lun_on');
-			$action->setName(__('Lun_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
+		foreach ($jours as $jour) {
+			// Info
+			$info = $this->getCmd(null, $jour['logicalId']);
+			if (!is_object($info)) {
+				$info = new programmateurCmd();
+				$info->setLogicalId($jour['logicalId']);
+				$info->setName($jour['label']);
+				$info->setIsVisible(0);
+			}
+			$info->setOrder($order++);
+			$info->setEqLogic_id($this->getId());
+			$info->setType('info');
+			$info->setSubType('binary');
+			$info->save();
 
-		$action = $this->getCmd(null, 'lun_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('lun_off');
-			$action->setName(__('Lun_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
+			// Action ON
+			$actionOn = $this->getCmd(null, $jour['short'] . '_on');
+			if (!is_object($actionOn)) {
+				$actionOn = new programmateurCmd();
+				$actionOn->setLogicalId($jour['short'] . '_on');
+				$actionOn->setName(__($jour['label'].'_On', __FILE__));
+				$actionOn->setTemplate('dashboard','programmateur::day');
+				$actionOn->setTemplate('mobile','programmateur::day');
+				$actionOn->setDisplay('showNameOndashboard','0');
+				$actionOn->setDisplay('showNameOnmobile','0');
+			}
+			$actionOn->setOrder($order++);
+			$actionOn->setEqLogic_id($this->getId());
+			$actionOn->setValue($info->getId());
+			$actionOn->setConfiguration('updateCmdId', $info->getId());
+			$actionOn->setConfiguration('updateCmdToValue', 1);
+			$actionOn->setType('action');
+			$actionOn->setSubType('other');
+			$actionOn->save();
 
-		$info = $this->getCmd(null, 'mardi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('mardi');
-			$info->setName(__('Mardi', __FILE__));
-			$info->setIsVisible(0);
+			// Action OFF
+			$actionOff = $this->getCmd(null, $jour['short'] . '_off');
+			if (!is_object($actionOff)) {
+				$actionOff = new programmateurCmd();
+				$actionOff->setLogicalId($jour['short'] . '_off');
+				$actionOff->setName(__($jour['label'].'_Off', __FILE__));
+				$actionOff->setTemplate('dashboard','programmateur::day');
+				$actionOff->setTemplate('mobile','programmateur::day');
+				$actionOff->setDisplay('showNameOndashboard','0');
+				$actionOff->setDisplay('showNameOnmobile','0');
+			}
+			$actionOff->setOrder($order++);
+			$actionOff->setEqLogic_id($this->getId());
+			$actionOff->setValue($info->getId());
+			$actionOff->setConfiguration('updateCmdId', $info->getId());
+			$actionOff->setConfiguration('updateCmdToValue', 0);
+			$actionOff->setType('action');
+			$actionOff->setSubType('other');
+			$actionOff->save();
 		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'mar_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('mar_on');
-			$action->setName(__('Mar_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'mar_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('mar_off');
-			$action->setName(__('Mar_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'mercredi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('mercredi');
-			$info->setName(__('Mercredi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'mer_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('mer_on');
-			$action->setName(__('Mer_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'mer_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('mer_off');
-			$action->setName(__('Mer_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'jeudi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('jeudi');
-			$info->setName(__('Jeudi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'jeu_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('jeu_on');
-			$action->setName(__('Jeu_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'jeu_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('jeu_off');
-			$action->setName(__('Jeu_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'vendredi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('vendredi');
-			$info->setName(__('Vendredi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'ven_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('ven_on');
-			$action->setName(__('Ven_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'ven_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('ven_off');
-			$action->setName(__('Ven_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'samedi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('samedi');
-			$info->setName(__('Samedi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'sam_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('sam_on');
-			$action->setName(__('Sam_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'sam_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('sam_off');
-			$action->setName(__('Sam_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'dimanche');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('dimanche');
-			$info->setName(__('Dimanche', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'dim_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('dim_on');
-			$action->setName(__('Dim_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'dim_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('dim_off');
-			$action->setName(__('Dim_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
 
 		$info = $this->getCmd(null, 'horaire');
 		if (!is_object($info)) {
@@ -740,7 +450,7 @@ class programmateur extends eqLogic {
 			$info->setLogicalId('horaire');
 			$info->setName(__('Horaire', __FILE__));
 			$info->setIsVisible(0);
-			$info->setisHistorized(1);
+			$info->setIsHistorized(1);
 			$info->setConfiguration('minValue', 0);
 			$info->setConfiguration('maxValue', 2359);
 		}
@@ -776,7 +486,7 @@ class programmateur extends eqLogic {
 			$info->setLogicalId('duree');
 			$info->setName(__('Durée', __FILE__));
 			$info->setIsVisible(0);
-			$info->setisHistorized(1);
+			$info->setIsHistorized(1);
 			$info->setConfiguration('minValue', -1440);
 			$info->setConfiguration('maxValue', 1440);
 		}
@@ -915,14 +625,14 @@ class programmateurCmd extends cmd {
 			switch ($this->getSubType()) {
 				case 'other':
 					log::add('programmateur','debug','- Action sur Other');
-					$virtualCmd = virtualCmd::byId($this->getConfiguration('updateCmdId'));
+					$virtualCmd = cmd::byId($this->getConfiguration('updateCmdId'));
 					$value = $this->getConfiguration('updateCmdToValue');
 					$result = jeedom::evaluateExpression($value);
 					$virtualCmd->event($result);
 				break;
 				case 'slider':
 					log::add('programmateur','debug','- Action sur Slider');
-					$virtualCmd = virtualCmd::byId($this->getConfiguration('infoName'));
+					$virtualCmd = cmd::byId($this->getConfiguration('infoName'));
 					$value = $_options['slider'];
 					$result = jeedom::evaluateExpression($value);
 					$virtualCmd->event($result);
