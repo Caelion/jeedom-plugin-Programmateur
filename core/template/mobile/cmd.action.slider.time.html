@@ -46,7 +46,7 @@
 				let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .in_value');
 				let step = 1;
 				let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) - step;
-				if (value.toString().substr(2, 2) > 59) {value = value - 40};
+				if (value.toString().slice(-2) > 59) {value = value - 40};
 				if (value < Min) {value = Min};
 				input.value = value + ' #unite#';
 				clearTimeout(window['timerHandle#id#']);
@@ -58,7 +58,7 @@
 				let input = document.querySelector('.cmd[data-cmd_uid="#uid#"] .in_value');
 				let step = 1;
 				let value = parseFloat(input.value.replace("#unite#", "").replace(" ", "")) + step;
-				if (value.toString().substr(2, 2) > 59) {value = value + 40};
+				if (value.toString().slice(-2) > 59) {value = value + 40};
 				if (value > Max) {value = Max};
 				input.value = value + ' #unite#';
 				clearTimeout(window['timerHandle#id#']);
