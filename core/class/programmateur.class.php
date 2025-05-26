@@ -501,6 +501,7 @@ class programmateur extends eqLogic {
 			$action->setTemplate('mobile','programmateur::time');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
+			$action->setDisplay('forceReturnLineBefore','1');
 		}
 		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
@@ -542,6 +543,7 @@ class programmateur extends eqLogic {
 				$arr['step'] = 10;
 				$arr['big_change'] = 'Oui';
 			$action->setDisplay('parameters', $arr);
+			$action->setDisplay('forceReturnLineBefore','1');
 		}
 		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
@@ -558,6 +560,7 @@ class programmateur extends eqLogic {
 			$action->setName(__('Marche forcée', __FILE__));
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
+			$action->setDisplay('forceReturnLineBefore','1');
 		}
 		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
