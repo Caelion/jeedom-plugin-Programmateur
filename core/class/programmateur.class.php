@@ -26,8 +26,6 @@ class programmateur extends eqLogic {
 	/* ***********************Methode static*************************** */
 
 	public static function nextprog_on($_params) {
-		$eqLogic = eqLogic::byId($_params['eq_id']);
-		log::add('programmateur','debug','Exécution de la fonction Nextprog_on pour l\'équipement ' . $eqLogic->getHumanName());
 		// Suppression des crons Off associés
 		$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $_params['eq_id']);
 		if (is_array($crons) && count($crons) > 0) {
@@ -38,28 +36,35 @@ class programmateur extends eqLogic {
 				}
 			}
 		}
+		$eqLogic = eqLogic::byId($_params['eq_id']);
 		if (is_object($eqLogic)) {
+			log::add('programmateur','debug','Exécution de la fonction Nextprog_on pour l\'équipement ' . $eqLogic->getHumanName());
 			$cmd_state = $eqLogic->getCmd(null, 'etat');
 			if (!is_object($cmd_state) || $cmd_state->execCmd() != 1) {// On s'assure que la planification est toujours sur on sinon on quitte
 				return;
 			}
 			if (isset($_params['action1']) && $_params['action1'] != '') {
-				if ($_params['typeaction1'] == 'Commande') {cmd::byId(str_replace('#','',$_params['action1']))->execCmd();}
-				else if ($_params['typeaction1'] == 'Scenario') {
-					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
-					if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
-						$tags = array();
-						$args = arg2array($_params['tagaction1']);
-						foreach ($args as $key => $value) {
-							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
-						}
-						$actionscenario->setTags($tags);
+				if ($_params['typeaction1'] == 'Commande') {
+					$cmd = cmd::byId(str_replace('#','',$_params['action1']));
+					if (is_object($cmd)) {
+						$cmd->execCmd();
+						$name = $cmd->getHumanName();
 					}
-					$actionscenario->launch();
+				} else if ($_params['typeaction1'] == 'Scenario') {
+					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
+					if (is_object($actionscenario)) {
+						if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
+							$tags = array();
+							$args = arg2array($_params['tagaction1']);
+							foreach ($args as $key => $value) {
+								$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+							}
+							$actionscenario->setTags($tags);
+						}
+						$actionscenario->launch();
+						$name = $actionscenario->getHumanName();
+					}
 				}
-
-				if ($_params['typeaction1'] == 'Commande') {$name = cmd::byId(str_replace('#','',$_params['action1']))->getHumanName();}
-				else if ($_params['typeaction1'] == 'Scenario') {$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])))->getHumanName();}
 				log::add('programmateur','info','Nextprog - ' . $_params['eq_id'] . ' - Action 1 - '. $name);
 			}
 			if (isset($_params['delay']) && $_params['delay'] > 0 && isset($_params['action2']) && $_params['action2'] != '') {
@@ -83,29 +88,34 @@ class programmateur extends eqLogic {
 
 	public static function nextprog_off($_params) {
 		$eqLogic = eqLogic::byId($_params['eq_id']);
-		log::add('programmateur','debug','Exécution de la fonction Nextprog_off pour l\'équipement ' . $eqLogic->getHumanName());
 		if (is_object($eqLogic)) {
+			log::add('programmateur','debug','Exécution de la fonction Nextprog_off pour l\'équipement ' . $eqLogic->getHumanName());
 			$cmd_state = $eqLogic->getCmd(null,'etat');
 			if (!is_object($cmd_state)) {// On s'assure que la commande etat existe sinon on quitte
 				return;
 			}
 			if (isset($_params['action2']) && $_params['action2'] != '') {
-				if ($_params['typeaction2'] == 'Commande') {cmd::byId(str_replace('#','',$_params['action2']))->execCmd();}
-				else if ($_params['typeaction2'] == 'Scenario') {
-					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])));
-					if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
-						$tags = array();
-						$args = arg2array($_params['tagaction2']);
-						foreach ($args as $key => $value) {
-							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
-						}
-						$actionscenario->setTags($tags);
+				if ($_params['typeaction2'] == 'Commande') {
+					$cmd = cmd::byId(str_replace('#','',$_params['action2']));
+					if (is_object($cmd)) {
+						$cmd->execCmd();
+						$name = $cmd->getHumanName();
 					}
-					$actionscenario->launch();
+				} else if ($_params['typeaction2'] == 'Scenario') {
+					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])));
+					if (is_object($actionscenario)) {
+						if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
+							$tags = array();
+							$args = arg2array($_params['tagaction2']);
+							foreach ($args as $key => $value) {
+								$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+							}
+							$actionscenario->setTags($tags);
+						}
+						$actionscenario->launch();
+						$name = $actionscenario->getHumanName();
+					}
 				}
-
-				if ($_params['typeaction2'] == 'Commande') {$name = cmd::byId(str_replace('#','',$_params['action2']))->getHumanName();}
-				else if ($_params['typeaction2'] == 'Scenario') {$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])))->getHumanName();}
 				log::add('programmateur','info','Nextprog - ' . $_params['eq_id'] . ' - Action 2 - '. $name);
 			}
 			$eqLogic->setConfiguration('RepeatCount',$eqLogic->getConfiguration('RepeatCount')+1)->save();// Mise du compteur à +1
@@ -117,82 +127,90 @@ class programmateur extends eqLogic {
 
 	public static function nextprog($equipement) {
 		$programmateur = eqLogic::byId($equipement);
-		log::add('programmateur','debug','- Appel de la fonction Nextprog par ' . $programmateur->getHumanName() . ' :');
-		if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
-			$cmd = $programmateur->getCmd(null,'etat');// Retourne la commande "etat" si elle existe
-			if (is_object($cmd)) {//Si la commande existe
-				$cmdValue = $cmd->execCmd();
-				if ($cmdValue == 1) {// Programmateur sur On
-					$today = date('N');
-					$lundi = $programmateur->getCmd(null,'lundi')->execCmd();
-					$mardi = $programmateur->getCmd(null,'mardi')->execCmd();
-					$mercredi = $programmateur->getCmd(null,'mercredi')->execCmd();
-					$jeudi = $programmateur->getCmd(null,'jeudi')->execCmd();
-					$vendredi = $programmateur->getCmd(null,'vendredi')->execCmd();
-					$samedi = $programmateur->getCmd(null,'samedi')->execCmd();
-					$dimanche = $programmateur->getCmd(null,'dimanche')->execCmd();
+		if (is_object($programmateur)) {
+			log::add('programmateur','debug','- Appel de la fonction Nextprog par ' . $programmateur->getHumanName() . ' :');
+			if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
+				$cmd = $programmateur->getCmd(null,'etat');// Retourne la commande "etat" si elle existe
+				if (is_object($cmd)) {//Si la commande existe
+					$cmdValue = $cmd->execCmd();
+					if ($cmdValue == 1) {// Programmateur sur On
+						$today = date('N');
+						$lundi = $programmateur->getCmd(null,'lundi')->execCmd();
+						$mardi = $programmateur->getCmd(null,'mardi')->execCmd();
+						$mercredi = $programmateur->getCmd(null,'mercredi')->execCmd();
+						$jeudi = $programmateur->getCmd(null,'jeudi')->execCmd();
+						$vendredi = $programmateur->getCmd(null,'vendredi')->execCmd();
+						$samedi = $programmateur->getCmd(null,'samedi')->execCmd();
+						$dimanche = $programmateur->getCmd(null,'dimanche')->execCmd();
 
-					$JF = 0;
-					$JF_box = $programmateur->getConfiguration('JF');
-					if ($programmateur->getConfiguration('CommandeJF') != '') {
-						if (substr($programmateur->getConfiguration('CommandeJF'),1,8) == 'variable') {
-							$JF = scenario::getData(substr($programmateur->getConfiguration('CommandeJF'),10,-2));
-						} else {
-							$JF = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeJF')))->execCmd();
-						}
-					}
-					log::add('programmateur','debug','  - JF : Actif : ' . $JF_box . ' - Critère respecté : ' . $JF);
-					$Mode = 0;
-					$Mode_box = $programmateur->getConfiguration('Mode');
-					if ($programmateur->getConfiguration('CommandeMode') != '') {
-						$Mode = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeMode')))->execCmd();
-						if ($Mode == $programmateur->getConfiguration('ExclMode')) {
-							$Mode = 1;
-						} else {$Mode = 0;}
-					}
-					log::add('programmateur','debug','  - Mode : Actif : ' . $Mode_box . ' - Critère respecté : ' . $Mode);
-
-					$heure = $programmateur->getCmd(null,'horaire')->execCmd();
-					$heure = substr('000'.$heure,-4);//Traitement des 0 sur les heures < 10:00
-					$heure_timestamp = strtotime(date('d-m-Y') . ' ' . $heure);
-					$duree = $programmateur->getCmd(null,'duree')->execCmd();
-					if ($duree < 0) {
-						$heure_timestamp = $heure_timestamp + $duree * 60;
-						$duree = - $duree;
-					}
-
-					$array = array('eq_id' => intval($programmateur->getId()),'delay' => $duree*60,'typeaction1' => $programmateur->getConfiguration('TypeAction1'),'action1' => $programmateur->getConfiguration('Action1'),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'),'timestamp' => $heure_timestamp, 'tagaction1' => $programmateur->getConfiguration('TagAction1'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
-					// Si on doit programmer un cron
-					if (($heure_timestamp > strtotime(date('H:i'))) && (($JF_box == 1 && $JF == 0) || $JF_box == 0) && (($Mode_box == 1 && $Mode == 0) || $Mode_box == 0) && (($today == 1 && $lundi == 1)||($today == 2 && $mardi == 1)||($today == 3 && $mercredi == 1)||($today == 4 && $jeudi == 1)||($today == 5 && $vendredi == 1)||($today == 6 && $samedi == 1)||($today == 7 && $dimanche == 1))) {
-						log::add('programmateur','debug','  - Nouveau cron à '.date('H:i',$array['timestamp']));
-						$cron = new cron();
-						$cron->setClass('programmateur');
-						$cron->setFunction('nextprog_on');
-						$cron->setOption($array);
-						$cron->setOnce(1);
-						$cron->setSchedule(cron::convertDateToCron($array['timestamp']));
-						$cron->save();
-					} else {
-						log::add('programmateur','debug','  - Pas de programmation à mettre en place');
-					}
-				} else {
-					log::add('programmateur','debug','  Action de fin sur mise sur off de l\'équipement');
-					$EndOnOff = $programmateur->getConfiguration('EndOnOff');
-					log::add('programmateur','debug','  - EndOnOff : ' . $EndOnOff);
-					if ($EndOnOff == 1){
-						// Suppression des crons Off éventuels
-						$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $equipement);
-						if (is_array($crons) && count($crons) > 0) {
-							foreach ($crons as $cron) {
-								if ($cron->getState() != 'run') {
-									log::add('programmateur','debug','  - Suppression du cron Nextprog_off : '.$cron->getSchedule());
-									$cron->remove();
+						$JF = 0;
+						$JF_box = $programmateur->getConfiguration('JF');
+						if ($programmateur->getConfiguration('CommandeJF') != '') {
+							if (substr($programmateur->getConfiguration('CommandeJF'),1,8) == 'variable') {
+								$JF = scenario::getData(substr($programmateur->getConfiguration('CommandeJF'),10,-2));
+							} else {
+								$cmd = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeJF')));
+								if (is_object($cmd)) {
+									$JF = $cmd->execCmd();
 								}
 							}
-							// Exécution immédiate de Nextprog_off
-							log::add('programmateur','debug','  - Exécution immédiate de Nextprog_off');
-							$array = array('eq_id' => intval($programmateur->getId()),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
-							programmateur::nextprog_off($array);
+						}
+						log::add('programmateur','debug','  - JF : Actif : ' . $JF_box . ' - Critère respecté : ' . $JF);
+						$Mode = 0;
+						$Mode_box = $programmateur->getConfiguration('Mode');
+						if ($programmateur->getConfiguration('CommandeMode') != '') {
+							$cmd = cmd::byId(str_replace('#','',$programmateur->getConfiguration('CommandeMode')));
+							if (is_object($cmd)) {
+								$Mode = $cmd->execCmd();
+								if ($Mode == $programmateur->getConfiguration('ExclMode')) {
+									$Mode = 1;
+								} else {$Mode = 0;}
+							}
+						}
+						log::add('programmateur','debug','  - Mode : Actif : ' . $Mode_box . ' - Critère respecté : ' . $Mode);
+
+						$heure = $programmateur->getCmd(null,'horaire')->execCmd();
+						$heure = substr('000'.$heure,-4);//Traitement des 0 sur les heures < 10:00
+						$heure_timestamp = strtotime(date('d-m-Y') . ' ' . $heure);
+						$duree = (int) $programmateur->getCmd(null,'duree')->execCmd();
+						if ($duree < 0) {
+							$heure_timestamp = $heure_timestamp + $duree * 60;
+							$duree = - $duree;
+						}
+
+						$array = array('eq_id' => intval($programmateur->getId()),'delay' => $duree*60,'typeaction1' => $programmateur->getConfiguration('TypeAction1'),'action1' => $programmateur->getConfiguration('Action1'),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'),'timestamp' => $heure_timestamp, 'tagaction1' => $programmateur->getConfiguration('TagAction1'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
+						// Si on doit programmer un cron
+						if (($heure_timestamp > strtotime(date('H:i'))) && (($JF_box == 1 && $JF == 0) || $JF_box == 0) && (($Mode_box == 1 && $Mode == 0) || $Mode_box == 0) && (($today == 1 && $lundi == 1)||($today == 2 && $mardi == 1)||($today == 3 && $mercredi == 1)||($today == 4 && $jeudi == 1)||($today == 5 && $vendredi == 1)||($today == 6 && $samedi == 1)||($today == 7 && $dimanche == 1))) {
+							log::add('programmateur','debug','  - Nouveau cron à '.date('H:i',$array['timestamp']));
+							$cron = new cron();
+							$cron->setClass('programmateur');
+							$cron->setFunction('nextprog_on');
+							$cron->setOption($array);
+							$cron->setOnce(1);
+							$cron->setSchedule(cron::convertDateToCron($array['timestamp']));
+							$cron->save();
+						} else {
+							log::add('programmateur','debug','  - Pas de programmation à mettre en place');
+						}
+					} else {
+						log::add('programmateur','debug','  Action de fin sur mise sur off de l\'équipement');
+						$EndOnOff = $programmateur->getConfiguration('EndOnOff');
+						log::add('programmateur','debug','  - EndOnOff : ' . $EndOnOff);
+						if ($EndOnOff == 1){
+							// Suppression des crons Off éventuels
+							$crons = cron::searchClassAndFunction('programmateur','nextprog_off','"eq_id":' . $equipement);
+							if (is_array($crons) && count($crons) > 0) {
+								foreach ($crons as $cron) {
+									if ($cron->getState() != 'run') {
+										log::add('programmateur','debug','  - Suppression du cron Nextprog_off : '.$cron->getSchedule());
+										$cron->remove();
+									}
+								}
+								// Exécution immédiate de Nextprog_off
+								log::add('programmateur','debug','  - Exécution immédiate de Nextprog_off');
+								$array = array('eq_id' => intval($programmateur->getId()),'typeaction2' => $programmateur->getConfiguration('TypeAction2'),'action2' => $programmateur->getConfiguration('Action2'), 'tagaction2' => $programmateur->getConfiguration('TagAction2'));
+								programmateur::nextprog_off($array);
+							}
 						}
 					}
 				}
@@ -202,71 +220,83 @@ class programmateur extends eqLogic {
 
 	public static function forced($equipement) {
 		$programmateur = eqLogic::byId($equipement);
-		if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
-			$duree = $programmateur->getCmd(null,'duree')->execCmd();
-			$fin = strtotime('now') + abs($duree) * 60;
-			log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . date('d/m/Y à H:i', $fin + 60));
-			if ($duree > 0) {
-				$on = 1;
-				$off = 2;
-			} else {
-				$on = 2;
-				$off = 1;
-			}
-			$_params = array('eq_id' => intval($programmateur->getId()),'typeaction1' => $programmateur->getConfiguration('TypeAction'.$on),'action1' => $programmateur->getConfiguration('Action'.$on),'typeaction2' => $programmateur->getConfiguration('TypeAction'.$off),'action2' => $programmateur->getConfiguration('Action'.$off),'tagaction1' => $programmateur->getConfiguration('TagAction'.$on),'tagaction2' => $programmateur->getConfiguration('TagAction'.$off));
-
-			if (isset($_params['action1']) && $_params['action1'] != '') {
-				if ($_params['typeaction1'] == 'Commande') {
-					cmd::byId(str_replace('#','',$_params['action1']))->execCmd();
-					$name = cmd::byId(str_replace('#','',$_params['action1']))->getHumanName();
-				} else if ($_params['typeaction1'] == 'Scenario') {
-					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
-					if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
-						$tags = array();
-						$args = arg2array($_params['tagaction1']);
-						foreach ($args as $key => $value) {
-							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
-						}
-						$actionscenario->setTags($tags);
-					}
-					$actionscenario->launch();
-					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])))->getHumanName();
+		if (is_object($programmateur)) {
+			if ($programmateur->getIsEnable() == 1) { // Vérification que l'équipement est actif
+				$duree = (int) $programmateur->getCmd(null,'duree')->execCmd();
+				$fin = strtotime('now') + abs($duree) * 60;
+				log::add('programmateur','debug','  - Fin de la marche forcée prévue : ' . date('d/m/Y à H:i', $fin + 60));
+				if ($duree > 0) {
+					$on = 1;
+					$off = 2;
+				} else {
+					$on = 2;
+					$off = 1;
 				}
-				log::add('programmateur','info','  - Action 1 - '. $name);
-			}
-			if (isset($_params['action2']) && $_params['action2'] != '') { // Si on doit programmer un cron
-				log::add('programmateur','debug','  - Nouveau cron mis en place : ' . date('d/m/Y à H:i',$fin + 60));
-				$cron = new cron();
-				$cron->setClass('programmateur');
-				$cron->setFunction('forced_off');
-				$cron->setOption($_params);
-				$cron->setOnce(1);
-				$cron->setSchedule(cron::convertDateToCron($fin));
-				$cron->save();
+				$_params = array('eq_id' => intval($programmateur->getId()),'typeaction1' => $programmateur->getConfiguration('TypeAction'.$on),'action1' => $programmateur->getConfiguration('Action'.$on),'typeaction2' => $programmateur->getConfiguration('TypeAction'.$off),'action2' => $programmateur->getConfiguration('Action'.$off),'tagaction1' => $programmateur->getConfiguration('TagAction'.$on),'tagaction2' => $programmateur->getConfiguration('TagAction'.$off));
+
+				if (isset($_params['action1']) && $_params['action1'] != '') {
+					if ($_params['typeaction1'] == 'Commande') {
+						$cmd = cmd::byId(str_replace('#','',$_params['action1']));
+						if (is_object($cmd)) {
+							$cmd->execCmd();
+							$name = $cmd->getHumanName();
+						}
+					} else if ($_params['typeaction1'] == 'Scenario') {
+						$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action1'])));
+						if (is_object($actionscenario)) {
+							if (isset($_params['tagaction1']) && $_params['tagaction1'] != '') {
+								$tags = array();
+								$args = arg2array($_params['tagaction1']);
+								foreach ($args as $key => $value) {
+									$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+								}
+								$actionscenario->setTags($tags);
+							}
+							$actionscenario->launch();
+							$name = $actionscenario->getHumanName();
+						}
+					}
+					log::add('programmateur','info','  - Action 1 - '. $name);
+				}
+				if (isset($_params['action2']) && $_params['action2'] != '') { // Si on doit programmer un cron
+					log::add('programmateur','debug','  - Nouveau cron mis en place : ' . date('d/m/Y à H:i',$fin + 60));
+					$cron = new cron();
+					$cron->setClass('programmateur');
+					$cron->setFunction('forced_off');
+					$cron->setOption($_params);
+					$cron->setOnce(1);
+					$cron->setSchedule(cron::convertDateToCron($fin));
+					$cron->save();
+				}
 			}
 		}
 	}
 
 	public static function forced_off($_params) {
 		$eqLogic = eqLogic::byId($_params['eq_id']);
-		log::add('programmateur','debug','Exécution de la fonction Forced_off pour l\'équipement ' . $eqLogic->getHumanName());
 		if (is_object($eqLogic)) {
+			log::add('programmateur','debug','Exécution de la fonction Forced_off pour l\'équipement ' . $eqLogic->getHumanName());
 			if (isset($_params['action2']) && $_params['action2'] != '') {
 				if ($_params['typeaction2'] == 'Commande') {
-					cmd::byId(str_replace('#','',$_params['action2']))->execCmd();
-					$name = cmd::byId(str_replace('#','',$_params['action2']))->getHumanName();
+					$cmd = cmd::byId(str_replace('#','',$_params['action2']));
+					if (is_object($cmd)) {
+						$cmd->execCmd();
+						$name = $cmd->getHumanName();
+					}
 				} else if ($_params['typeaction2'] == 'Scenario') {
 					$actionscenario = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])));
-					if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
-						$tags = array();
-						$args = arg2array($_params['tagaction2']);
-						foreach ($args as $key => $value) {
-							$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+					if (is_object($actionscenario)) {
+						if (isset($_params['tagaction2']) && $_params['tagaction2'] != '') {
+							$tags = array();
+							$args = arg2array($_params['tagaction2']);
+							foreach ($args as $key => $value) {
+								$tags['#' . trim(trim($key), '#') . '#'] = trim($value);
+							}
+							$actionscenario->setTags($tags);
 						}
-						$actionscenario->setTags($tags);
+						$actionscenario->launch();
+						$name = $actionscenario->getHumanName();
 					}
-					$actionscenario->launch();
-					$name = scenario::byId(str_replace('scenario','',str_replace('#','',$_params['action2'])))->getHumanName();
 				}
 				log::add('programmateur','info','  - Action 2 - '. $name);
 			}
@@ -329,7 +359,7 @@ class programmateur extends eqLogic {
 			$info->setLogicalId('etat');
 			$info->setName(__('Etat', __FILE__));
 			$info->setIsVisible(0);
-			$info->setisHistorized(1);
+			$info->setIsHistorized(1);
 		}
 		$info->setOrder($order++);
 		$info->setEqLogic_id($this->getId());
@@ -377,362 +407,72 @@ class programmateur extends eqLogic {
 		$action->setSubType('other');
 		$action->save();
 
-		$info = $this->getCmd(null, 'lundi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('lundi');
-			$info->setName(__('Lundi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
+		// Tableau des jours
+		$jours = [
+			['logicalId' => 'lundi',    'short' => 'lun', 'label' => __('Lundi', __FILE__)],
+			['logicalId' => 'mardi',    'short' => 'mar', 'label' => __('Mardi', __FILE__)],
+			['logicalId' => 'mercredi', 'short' => 'mer', 'label' => __('Mercredi', __FILE__)],
+			['logicalId' => 'jeudi',    'short' => 'jeu', 'label' => __('Jeudi', __FILE__)],
+			['logicalId' => 'vendredi', 'short' => 'ven', 'label' => __('Vendredi', __FILE__)],
+			['logicalId' => 'samedi',   'short' => 'sam', 'label' => __('Samedi', __FILE__)],
+			['logicalId' => 'dimanche', 'short' => 'dim', 'label' => __('Dimanche', __FILE__)]
+		];
 
-		$action = $this->getCmd(null, 'lun_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('lun_on');
-			$action->setName(__('Lun_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
+		foreach ($jours as $jour) {
+			// Info
+			$info = $this->getCmd(null, $jour['logicalId']);
+			if (!is_object($info)) {
+				$info = new programmateurCmd();
+				$info->setLogicalId($jour['logicalId']);
+				$info->setName($jour['label']);
+				$info->setIsVisible(0);
+			}
+			$info->setOrder($order++);
+			$info->setEqLogic_id($this->getId());
+			$info->setType('info');
+			$info->setSubType('binary');
+			$info->save();
 
-		$action = $this->getCmd(null, 'lun_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('lun_off');
-			$action->setName(__('Lun_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
+			// Action ON
+			$actionOn = $this->getCmd(null, $jour['short'] . '_on');
+			if (!is_object($actionOn)) {
+				$actionOn = new programmateurCmd();
+				$actionOn->setLogicalId($jour['short'] . '_on');
+				$actionOn->setName(__($jour['label'].'_On', __FILE__));
+				$actionOn->setTemplate('dashboard','programmateur::day');
+				$actionOn->setTemplate('mobile','programmateur::day');
+				$actionOn->setDisplay('showNameOndashboard','0');
+				$actionOn->setDisplay('showNameOnmobile','0');
+			}
+			$actionOn->setOrder($order++);
+			$actionOn->setEqLogic_id($this->getId());
+			$actionOn->setValue($info->getId());
+			$actionOn->setConfiguration('updateCmdId', $info->getId());
+			$actionOn->setConfiguration('updateCmdToValue', 1);
+			$actionOn->setType('action');
+			$actionOn->setSubType('other');
+			$actionOn->save();
 
-		$info = $this->getCmd(null, 'mardi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('mardi');
-			$info->setName(__('Mardi', __FILE__));
-			$info->setIsVisible(0);
+			// Action OFF
+			$actionOff = $this->getCmd(null, $jour['short'] . '_off');
+			if (!is_object($actionOff)) {
+				$actionOff = new programmateurCmd();
+				$actionOff->setLogicalId($jour['short'] . '_off');
+				$actionOff->setName(__($jour['label'].'_Off', __FILE__));
+				$actionOff->setTemplate('dashboard','programmateur::day');
+				$actionOff->setTemplate('mobile','programmateur::day');
+				$actionOff->setDisplay('showNameOndashboard','0');
+				$actionOff->setDisplay('showNameOnmobile','0');
+			}
+			$actionOff->setOrder($order++);
+			$actionOff->setEqLogic_id($this->getId());
+			$actionOff->setValue($info->getId());
+			$actionOff->setConfiguration('updateCmdId', $info->getId());
+			$actionOff->setConfiguration('updateCmdToValue', 0);
+			$actionOff->setType('action');
+			$actionOff->setSubType('other');
+			$actionOff->save();
 		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'mar_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('mar_on');
-			$action->setName(__('Mar_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'mar_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('mar_off');
-			$action->setName(__('Mar_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'mercredi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('mercredi');
-			$info->setName(__('Mercredi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'mer_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('mer_on');
-			$action->setName(__('Mer_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'mer_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('mer_off');
-			$action->setName(__('Mer_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'jeudi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('jeudi');
-			$info->setName(__('Jeudi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'jeu_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('jeu_on');
-			$action->setName(__('Jeu_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'jeu_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('jeu_off');
-			$action->setName(__('Jeu_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'vendredi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('vendredi');
-			$info->setName(__('Vendredi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'ven_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('ven_on');
-			$action->setName(__('Ven_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'ven_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('ven_off');
-			$action->setName(__('Ven_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'samedi');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('samedi');
-			$info->setName(__('Samedi', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'sam_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('sam_on');
-			$action->setName(__('Sam_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'sam_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('sam_off');
-			$action->setName(__('Sam_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$info = $this->getCmd(null, 'dimanche');
-		if (!is_object($info)) {
-			$info = new programmateurCmd();
-			$info->setLogicalId('dimanche');
-			$info->setName(__('Dimanche', __FILE__));
-			$info->setIsVisible(0);
-		}
-		$info->setOrder($order++);
-		$info->setEqLogic_id($this->getId());
-		$info->setType('info');
-		$info->setSubType('binary');
-		$info->save();
-
-		$action = $this->getCmd(null, 'dim_on');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('dim_on');
-			$action->setName(__('Dim_On', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
-
-		$action = $this->getCmd(null, 'dim_off');
-		if (!is_object($action)) {
-			$action = new programmateurCmd();
-			$action->setLogicalId('dim_off');
-			$action->setName(__('Dim_Off', __FILE__));
-			$action->setTemplate('dashboard','programmateur::day');
-			$action->setTemplate('mobile','programmateur::day');
-			$action->setDisplay('showNameOndashboard','0');
-			$action->setDisplay('showNameOnmobile','0');
-		}
-		$action->setOrder($order++);
-		$action->setEqLogic_id($this->getId());
-		$action->setValue($info->getId());
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 0);
-		$action->setType('action');
-		$action->setSubType('other');
-		$action->save();
 
 		$info = $this->getCmd(null, 'horaire');
 		if (!is_object($info)) {
@@ -740,7 +480,7 @@ class programmateur extends eqLogic {
 			$info->setLogicalId('horaire');
 			$info->setName(__('Horaire', __FILE__));
 			$info->setIsVisible(0);
-			$info->setisHistorized(1);
+			$info->setIsHistorized(1);
 			$info->setConfiguration('minValue', 0);
 			$info->setConfiguration('maxValue', 2359);
 		}
@@ -761,6 +501,7 @@ class programmateur extends eqLogic {
 			$action->setTemplate('mobile','programmateur::time');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
+			$action->setDisplay('forceReturnLineBefore','1');
 		}
 		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
@@ -776,7 +517,7 @@ class programmateur extends eqLogic {
 			$info->setLogicalId('duree');
 			$info->setName(__('Durée', __FILE__));
 			$info->setIsVisible(0);
-			$info->setisHistorized(1);
+			$info->setIsHistorized(1);
 			$info->setConfiguration('minValue', -1440);
 			$info->setConfiguration('maxValue', 1440);
 		}
@@ -798,9 +539,11 @@ class programmateur extends eqLogic {
 			$action->setTemplate('mobile','programmateur::delay');
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
+				$arr = [];
 				$arr['step'] = 10;
 				$arr['big_change'] = 'Oui';
 			$action->setDisplay('parameters', $arr);
+			$action->setDisplay('forceReturnLineBefore','1');
 		}
 		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
@@ -817,6 +560,7 @@ class programmateur extends eqLogic {
 			$action->setName(__('Marche forcée', __FILE__));
 			$action->setDisplay('showNameOndashboard','0');
 			$action->setDisplay('showNameOnmobile','0');
+			$action->setDisplay('forceReturnLineBefore','1');
 		}
 		$action->setOrder($order++);
 		$action->setEqLogic_id($this->getId());
@@ -915,17 +659,21 @@ class programmateurCmd extends cmd {
 			switch ($this->getSubType()) {
 				case 'other':
 					log::add('programmateur','debug','- Action sur Other');
-					$virtualCmd = virtualCmd::byId($this->getConfiguration('updateCmdId'));
+					$virtualCmd = cmd::byId($this->getConfiguration('updateCmdId'));
 					$value = $this->getConfiguration('updateCmdToValue');
 					$result = jeedom::evaluateExpression($value);
-					$virtualCmd->event($result);
+					if (is_object($virtualCmd)) {
+						$virtualCmd->event($result);
+					}
 				break;
 				case 'slider':
 					log::add('programmateur','debug','- Action sur Slider');
-					$virtualCmd = virtualCmd::byId($this->getConfiguration('infoName'));
+					$virtualCmd = cmd::byId($this->getConfiguration('infoName'));
 					$value = $_options['slider'];
 					$result = jeedom::evaluateExpression($value);
-					$virtualCmd->event($result);
+					if (is_object($virtualCmd)) {
+						$virtualCmd->event($result);
+					}
 				break;
 			}
 			programmateur::nextprog($eqlogic);
