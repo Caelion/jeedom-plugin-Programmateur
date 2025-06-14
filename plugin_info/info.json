@@ -7,6 +7,7 @@
 	"require" : "4.4.0",
 	"category" : "organization",
 	"changelog" : "https://caelion.github.io/jeedom-plugins-documentation/Programmateur/#language#/changelog",
+	"changelog_beta": "https://caelion.github.io/jeedom-plugins-documentation/Programmateur/#language#/changelog",
 	"documentation" : "https://caelion.github.io/jeedom-plugins-documentation/Programmateur/#language#/",
 	"language" : ["fr_FR","en_US","de_DE","it_IT","es_ES","ru_RU","id_ID"],
 	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile","v4"],
